@@ -9,21 +9,21 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
+            background-color: #1f2937;
         }
         .modal-overlay {
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.7);
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gray-900 min-h-screen flex items-center justify-center p-4">
 
     <!-- Main Page Container (Add Members) -->
-    <div id="mainPageContainer" class="bg-white rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-4xl mx-auto flex flex-col space-y-8">
+    <div id="mainPageContainer" class="bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-4xl mx-auto flex flex-col space-y-8">
         <header class="text-center space-y-2">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 tracking-tight">Committee Members</h1>
-            <p class="text-gray-500 font-medium text-sm">
-                Your unique user ID: <span id="userIdDisplay" class="font-mono text-gray-700 font-bold bg-gray-200 rounded-md px-2 py-1">Loading...</span>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">Committee Members</h1>
+            <p class="text-gray-400 font-medium text-sm">
+                Your unique user ID: <span id="userIdDisplay" class="font-mono text-gray-200 font-bold bg-gray-700 rounded-md px-2 py-1">Loading...</span>
             </p>
         </header>
 
@@ -37,14 +37,14 @@
             </button>
         </div>
 
-        <p id="loadingMessage" class="text-center text-gray-500">Loading members...</p>
+        <p id="loadingMessage" class="text-center text-gray-400">Loading members...</p>
     </div>
 
     <!-- View Members Page Container -->
-    <div id="viewMembersPageContainer" class="bg-white rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-4xl mx-auto flex-col space-y-8 hidden">
+    <div id="viewMembersPageContainer" class="bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-4xl mx-auto flex-col space-y-8 hidden">
         <header class="text-center space-y-2">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 tracking-tight">All Members</h1>
-            <button id="backToMainBtn" class="mt-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-full transition-colors">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">All Members</h1>
+            <button id="backToMainBtn" class="mt-4 bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-full transition-colors">
                 Back to Main
             </button>
         </header>
@@ -57,20 +57,20 @@
 
     <!-- Add/Edit Member Modal -->
     <div id="memberModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-xl mx-4 transform transition-all scale-95 opacity-0">
-            <h2 id="modalTitle" class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 text-center">Add New Member</h2>
+        <div class="bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-xl mx-4 transform transition-all scale-95 opacity-0">
+            <h2 id="modalTitle" class="text-2xl md:text-3xl font-bold text-white mb-6 text-center">Add New Member</h2>
             <form id="memberForm" class="space-y-4">
                 <div>
-                    <label for="memberName" class="block text-gray-700 font-medium mb-1">Name</label>
-                    <input type="text" id="memberName" name="name" required class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+                    <label for="memberName" class="block text-gray-200 font-medium mb-1">Name</label>
+                    <input type="text" id="memberName" name="name" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
                 </div>
                 <div>
-                    <label for="memberBirthday" class="block text-gray-700 font-medium mb-1">Birthday</label>
-                    <input type="date" id="memberBirthday" name="birthday" required class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+                    <label for="memberBirthday" class="block text-gray-200 font-medium mb-1">Birthday</label>
+                    <input type="date" id="memberBirthday" name="birthday" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
                 </div>
                 <div>
-                    <label for="memberSex" class="block text-gray-700 font-medium mb-1">Sex</label>
-                    <select id="memberSex" name="sex" required class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+                    <label for="memberSex" class="block text-gray-200 font-medium mb-1">Sex</label>
+                    <select id="memberSex" name="sex" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
                         <option value="">Select...</option>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
@@ -78,15 +78,15 @@
                     </select>
                 </div>
                 <div>
-                    <label for="memberPayment" class="block text-gray-700 font-medium mb-1">Payment Details</label>
-                    <input type="text" id="memberPayment" name="paymentDetails" class="w-full p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+                    <label for="memberPayment" class="block text-gray-200 font-medium mb-1">Payment Details</label>
+                    <input type="text" id="memberPayment" name="paymentDetails" class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
                 </div>
 
                 <!-- Family Members Section -->
                 <div class="space-y-2">
-                    <h3 class="text-lg font-semibold text-gray-700">Family Members</h3>
+                    <h3 class="text-lg font-semibold text-gray-200">Family Members</h3>
                     <div id="familyMembersContainer" class="space-y-2"></div>
-                    <button type="button" id="addFamilyMemberBtn" class="text-blue-600 hover:text-blue-700 font-medium flex items-center">
+                    <button type="button" id="addFamilyMemberBtn" class="text-blue-500 hover:text-blue-400 font-medium flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
                         </svg>
@@ -95,7 +95,7 @@
                 </div>
 
                 <div class="flex justify-end space-x-4 pt-4">
-                    <button type="button" id="cancelBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-full transition-colors">
+                    <button type="button" id="cancelBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-full transition-colors">
                         Cancel
                     </button>
                     <button type="submit" id="saveBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full transition-colors">
@@ -108,11 +108,11 @@
 
     <!-- Custom Confirmation Modal -->
     <div id="confirmModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden">
-        <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-sm mx-4 transform transition-all scale-95 opacity-0">
-            <h2 id="confirmTitle" class="text-xl font-bold text-gray-800 mb-4">Are you sure?</h2>
-            <p id="confirmMessage" class="text-gray-600 mb-6">This action cannot be undone.</p>
+        <div class="bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-sm mx-4 transform transition-all scale-95 opacity-0">
+            <h2 id="confirmTitle" class="text-xl font-bold text-white mb-4">Are you sure?</h2>
+            <p id="confirmMessage" class="text-gray-400 mb-6">This action cannot be undone.</p>
             <div class="flex justify-end space-x-4">
-                <button id="confirmCancelBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-full transition-colors">Cancel</button>
+                <button id="confirmCancelBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-full transition-colors">Cancel</button>
                 <button id="confirmDeleteBtn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full transition-colors">Delete</button>
             </div>
         </div>
@@ -197,7 +197,7 @@
                 renderMembers(members);
             }, (error) => {
                 console.error("Error fetching documents: ", error);
-                membersContainer.innerHTML = `<p class="col-span-full text-center text-red-500">Failed to fetch members. Check console for details.</p>`;
+                membersContainer.innerHTML = `<p class="col-span-full text-center text-red-400">Failed to fetch members. Check console for details.</p>`;
             });
         };
 
@@ -218,8 +218,8 @@
                 const div = document.createElement('div');
                 div.className = "flex space-x-2 items-center";
                 div.innerHTML = `
-                    <input type="text" value="${member.name}" placeholder="Name" class="flex-1 p-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-colors" readonly>
-                    <input type="text" value="${member.relationship}" placeholder="Relationship" class="flex-1 p-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-colors" readonly>
+                    <input type="text" value="${member.name}" placeholder="Name" class="flex-1 p-2 rounded-lg border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 transition-colors">
+                    <input type="text" value="${member.relationship}" placeholder="Relationship" class="flex-1 p-2 rounded-lg border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 transition-colors">
                     <button type="button" class="remove-family-member-btn text-red-500 hover:text-red-700">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.5 10.5h-9a.5.5 0 010-1h9a.5.5 0 010 1z"/></svg>
                     </button>
@@ -235,30 +235,30 @@
             membersContainer.innerHTML = '';
             loadingMessage.classList.add('hidden');
             if (members.length === 0) {
-                membersContainer.innerHTML = `<p class="col-span-full text-center text-gray-500">No members found. Add one to get started!</p>`;
+                membersContainer.innerHTML = `<p class="col-span-full text-center text-gray-400">No members found. Add one to get started!</p>`;
             } else {
                 members.forEach(member => {
                     const familyMembersHtml = member.familyMembers && member.familyMembers.length > 0
-                        ? `<div><p class="font-semibold text-gray-700">Family Members:</p><ul class="list-disc list-inside space-y-1 mt-1">${member.familyMembers.map(fm => `<li>${fm.name} (${fm.relationship})</li>`).join('')}</ul></div>`
+                        ? `<div><p class="font-semibold text-gray-300">Family Members:</p><ul class="list-disc list-inside space-y-1 mt-1">${member.familyMembers.map(fm => `<li class="text-gray-400">${fm.name} (${fm.relationship})</li>`).join('')}</ul></div>`
                         : '';
 
                     const memberCard = document.createElement('div');
-                    memberCard.className = "bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-between transition-transform duration-300 transform hover:scale-105";
+                    memberCard.className = "bg-gray-700 rounded-2xl shadow-lg p-6 flex flex-col justify-between transition-transform duration-300 transform hover:scale-105";
                     memberCard.innerHTML = `
                         <div class="space-y-4">
                             <div>
-                                <h3 class="text-2xl font-bold text-gray-900">${member.name}</h3>
-                                <p class="text-sm font-medium text-gray-500">${member.sex}</p>
+                                <h3 class="text-2xl font-bold text-white">${member.name}</h3>
+                                <p class="text-sm font-medium text-gray-400">${member.sex}</p>
                             </div>
-                            <div class="space-y-1 text-gray-600 text-sm">
+                            <div class="space-y-1 text-gray-300 text-sm">
                                 <p><span class="font-semibold">Birthday:</span> ${member.birthday}</p>
                                 <p><span class="font-semibold">Payment:</span> ${member.paymentDetails || 'N/A'}</p>
                             </div>
                             ${familyMembersHtml}
                         </div>
                         <div class="flex justify-end space-x-2 mt-4">
-                            <button class="edit-btn text-blue-500 hover:text-blue-700 font-medium transition-colors" data-id="${member.id}">Edit</button>
-                            <button class="delete-btn text-red-500 hover:text-red-700 font-medium transition-colors" data-id="${member.id}">Delete</button>
+                            <button class="edit-btn text-blue-400 hover:text-blue-300 font-medium transition-colors" data-id="${member.id}">Edit</button>
+                            <button class="delete-btn text-red-400 hover:text-red-300 font-medium transition-colors" data-id="${member.id}">Delete</button>
                         </div>
                     `;
                     membersContainer.appendChild(memberCard);
@@ -355,8 +355,8 @@
             const newFamilyMember = document.createElement('div');
             newFamilyMember.className = "flex space-x-2 items-center";
             newFamilyMember.innerHTML = `
-                <input type="text" placeholder="Name" class="flex-1 p-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-colors">
-                <input type="text" placeholder="Relationship" class="flex-1 p-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition-colors">
+                <input type="text" placeholder="Name" class="flex-1 p-2 rounded-lg border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 transition-colors">
+                <input type="text" placeholder="Relationship" class="flex-1 p-2 rounded-lg border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 transition-colors">
                 <button type="button" class="remove-family-member-btn text-red-500 hover:text-red-700">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.5 10.5h-9a.5.5 0 010-1h9a.5.5 0 010 1z"/></svg>
                 </button>
