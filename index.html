@@ -18,8 +18,8 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
 
-    <!-- Main Container -->
-    <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-4xl mx-auto flex flex-col space-y-8">
+    <!-- Main Page Container (Add Members) -->
+    <div id="mainPageContainer" class="bg-white rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-4xl mx-auto flex flex-col space-y-8">
         <header class="text-center space-y-2">
             <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 tracking-tight">Committee Members</h1>
             <p class="text-gray-500 font-medium text-sm">
@@ -27,16 +27,31 @@
             </p>
         </header>
 
-        <!-- Member List Container -->
-        <div id="membersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <p id="loadingMessage" class="col-span-full text-center text-gray-500">Loading members...</p>
-        </div>
-
         <!-- Add New Member Button -->
-        <div class="flex justify-center">
+        <div class="flex justify-center space-x-4">
             <button id="addMemberBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
                 Add New Member
             </button>
+            <button id="viewMembersBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                View All Members
+            </button>
+        </div>
+
+        <p id="loadingMessage" class="text-center text-gray-500">Loading members...</p>
+    </div>
+
+    <!-- View Members Page Container -->
+    <div id="viewMembersPageContainer" class="bg-white rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-4xl mx-auto flex-col space-y-8 hidden">
+        <header class="text-center space-y-2">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 tracking-tight">All Members</h1>
+            <button id="backToMainBtn" class="mt-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-full transition-colors">
+                Back to Main
+            </button>
+        </header>
+
+        <!-- Member List Container -->
+        <div id="membersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Members will be rendered here -->
         </div>
     </div>
 
@@ -113,8 +128,12 @@
         setLogLevel('debug');
 
         const userIdDisplay = document.getElementById('userIdDisplay');
+        const mainPageContainer = document.getElementById('mainPageContainer');
+        const viewMembersPageContainer = document.getElementById('viewMembersPageContainer');
         const membersContainer = document.getElementById('membersContainer');
         const addMemberBtn = document.getElementById('addMemberBtn');
+        const viewMembersBtn = document.getElementById('viewMembersBtn');
+        const backToMainBtn = document.getElementById('backToMainBtn');
         const memberModal = document.getElementById('memberModal');
         const modalTitle = document.getElementById('modalTitle');
         const memberForm = document.getElementById('memberForm');
@@ -178,8 +197,19 @@
                 renderMembers(members);
             }, (error) => {
                 console.error("Error fetching documents: ", error);
-                loadingMessage.textContent = 'Failed to fetch members. Check console for details.';
+                membersContainer.innerHTML = `<p class="col-span-full text-center text-red-500">Failed to fetch members. Check console for details.</p>`;
             });
+        };
+
+        const showPage = (pageName) => {
+            mainPageContainer.classList.add('hidden');
+            viewMembersPageContainer.classList.add('hidden');
+
+            if (pageName === 'main') {
+                mainPageContainer.classList.remove('hidden');
+            } else if (pageName === 'view') {
+                viewMembersPageContainer.classList.remove('hidden');
+            }
         };
 
         const renderFamilyMembers = (familyMembers = []) => {
@@ -203,6 +233,7 @@
 
         const renderMembers = (members) => {
             membersContainer.innerHTML = '';
+            loadingMessage.classList.add('hidden');
             if (members.length === 0) {
                 membersContainer.innerHTML = `<p class="col-span-full text-center text-gray-500">No members found. Add one to get started!</p>`;
             } else {
@@ -240,7 +271,6 @@
                     button.addEventListener('click', (e) => showDeleteConfirm(e.target.dataset.id));
                 });
             }
-            loadingMessage.remove(); // Remove loading message once content is rendered
         };
 
         const showModal = () => {
@@ -309,6 +339,14 @@
             memberForm.reset();
             renderFamilyMembers();
             showModal();
+        });
+
+        viewMembersBtn.addEventListener('click', () => {
+            showPage('view');
+        });
+
+        backToMainBtn.addEventListener('click', () => {
+            showPage('main');
         });
 
         cancelBtn.addEventListener('click', hideModal);
