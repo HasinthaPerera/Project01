@@ -6,6 +6,7 @@
   <title>Death Benefit Society - Member Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
   <style>
     body { font-family: 'Inter', sans-serif; background-color: #1f2937; }
   </style>
@@ -43,6 +44,13 @@
             <option value="Other">Other</option>
           </select>
         </div>
+        <div>
+          <label for="familyMembers" class="block text-gray-200 font-medium mb-1">
+            Family Members (one per line, format: Name - Relation)
+          </label>
+          <textarea id="familyMembers" name="family" rows="4" placeholder="John - Father&#10;Mary - Mother" 
+            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-800 text-white"></textarea>
+        </div>
         <div class="flex justify-end space-x-4 pt-4">
           <button type="reset" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-full">Clear</button>
           <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full">Submit</button>
@@ -52,21 +60,53 @@
   </div>
 
   <script>
+    // Initialize EmailJS
+    emailjs.init("tJyzNke0fsVsl0czT"); 
+
     const addMemberBtn = document.getElementById('addMemberBtn');
     const addMemberForm = document.getElementById('addMemberForm');
+    const viewMembersBtn = document.getElementById('viewMembersBtn');
 
+    // Show/hide the form
     addMemberBtn.addEventListener('click', () => {
       addMemberForm.classList.toggle('hidden');
       addMemberForm.scrollIntoView({ behavior: 'smooth' });
     });
 
-    // Optionally, handle form submission
+    // Open Google Sheet or Doc when clicking View All Members
+    viewMembersBtn.addEventListener('click', () => {
+      const sheetUrl = "https://docs.google.com/spreadsheets/d/14a39saiscm07b_0uXkm4ShB5NysLfS-RWPNoanLUppU/edit?usp=sharing"; 
+      window.open(sheetUrl, "_blank");
+    });
+
+    // Handle form submission
     const memberForm = document.getElementById('memberForm');
-    memberForm.addEventListener('submit', (e) => {
+    memberForm.addEventListener('submit', function(e) {
       e.preventDefault();
-      alert('Member submitted: ' + memberForm.memberName.value);
-      memberForm.reset();
+
+      const name = memberForm.name.value;
+      const birthday = memberForm.birthday.value;
+      const sex = memberForm.sex.value;
+      const family = memberForm.family.value;
+
+      const templateParams = {
+        member_name: name,
+        member_birthday: birthday,
+        member_sex: sex,
+        member_family: family
+      };
+
+      emailjs.send("service_c14ex88", "template_4ilwcir", templateParams)
+        .then(function(response) {
+          alert("Member information sent successfully!");
+          memberForm.reset();
+          addMemberForm.classList.add('hidden');
+        }, function(error) {
+          alert("Failed to send email. Please try again.");
+          console.error(error);
+        });
     });
   </script>
+
 </body>
 </html>
