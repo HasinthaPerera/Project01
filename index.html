@@ -3,394 +3,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Commitee</title>
+  <title>Death Benefit Society - Member Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #1f2937;
-    }
-    .modal-overlay {
-      background-color: rgba(0, 0, 0, 0.7);
-    }
+    body { font-family: 'Inter', sans-serif; background-color: #1f2937; }
   </style>
 </head>
 <body class="bg-gray-900 min-h-screen flex items-center justify-center p-4">
 
-  <!-- Main Page -->
-  <div id="mainPageContainer" class="bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-4xl mx-auto flex flex-col space-y-8">
+  <div id="mainContainer" class="bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-4xl mx-auto flex flex-col space-y-8">
     <header class="text-center space-y-2">
-      <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">Commitee</h1>
-      <p class="text-gray-400 font-medium text-sm">
-        Your unique user ID: 
-        <span id="userIdDisplay" class="font-mono text-gray-200 font-bold bg-gray-700 rounded-md px-2 py-1">Loading...</span>
-      </p>
+      <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">Death Benefit Society</h1>
     </header>
 
     <div class="flex justify-center space-x-4">
-      <button id="addMemberBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
-        Add New Member
-      </button>
-      <button id="viewMembersBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
-        View All Members
-      </button>
+      <button id="addMemberBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full">Add New Member</button>
+      <button id="viewMembersBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-full">View All Members</button>
     </div>
 
-    <p id="loadingMessage" class="text-center text-gray-400">Loading members...</p>
-    <p id="errorMessage" class="text-center text-red-400 hidden"></p>
-  </div>
-
-  <!-- View Members Page -->
-  <div id="viewMembersPageContainer" class="bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-4xl mx-auto flex-col space-y-8 hidden">
-    <header class="text-center space-y-2">
-      <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">All Members</h1>
-      <button id="backToMainBtn" class="mt-4 bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-full transition-colors">
-        Back to Main
-      </button>
-    </header>
-    <div id="membersContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-  </div>
-
-  <!-- Add/Edit Member Modal -->
-  <div id="memberModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden">
-    <div class="bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-xl mx-4 transform transition-all scale-95 opacity-0">
-      <h2 id="modalTitle" class="text-2xl md:text-3xl font-bold text-white mb-6 text-center">Add New Member</h2>
+    <!-- Add Member Form (hidden initially) -->
+    <div id="addMemberForm" class="hidden mt-6 bg-gray-700 p-6 rounded-2xl">
+      <h2 class="text-2xl font-bold text-white mb-4 text-center">Add New Member</h2>
       <form id="memberForm" class="space-y-4">
         <div>
           <label for="memberName" class="block text-gray-200 font-medium mb-1">Name</label>
-          <input type="text" id="memberName" name="name" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+          <input type="text" id="memberName" name="name" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-800 text-white">
         </div>
         <div>
           <label for="memberBirthday" class="block text-gray-200 font-medium mb-1">Birthday</label>
-          <input type="date" id="memberBirthday" name="birthday" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+          <input type="date" id="memberBirthday" name="birthday" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-800 text-white">
         </div>
         <div>
           <label for="memberSex" class="block text-gray-200 font-medium mb-1">Sex</label>
-          <select id="memberSex" name="sex" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+          <select id="memberSex" name="sex" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-800 text-white">
             <option value="">Select...</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
             <option value="Other">Other</option>
           </select>
         </div>
-        <div>
-          <label for="memberPayment" class="block text-gray-200 font-medium mb-1">Payment Details</label>
-          <input type="text" id="memberPayment" name="paymentDetails" class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
-        </div>
-
-        <!-- Family Members -->
-        <div class="space-y-2">
-          <h3 class="text-lg font-semibold text-gray-200">Family Members</h3>
-          <div id="familyMembersContainer" class="space-y-2"></div>
-          <button type="button" id="addFamilyMemberBtn" class="text-blue-500 hover:text-blue-400 font-medium flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-            </svg>
-            Add Family Member
-          </button>
-        </div>
-
         <div class="flex justify-end space-x-4 pt-4">
-          <button type="button" id="cancelBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-full transition-colors">
-            Cancel
-          </button>
-          <button type="submit" id="saveBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full transition-colors">
-            Save
-          </button>
+          <button type="reset" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-full">Clear</button>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full">Submit</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Confirmation Modal -->
-  <div id="confirmModal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center hidden">
-    <div class="bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-sm mx-4 transform transition-all scale-95 opacity-0">
-      <h2 id="confirmTitle" class="text-xl font-bold text-white mb-4">Are you sure?</h2>
-      <p id="confirmMessage" class="text-gray-400 mb-6">This action cannot be undone.</p>
-      <div class="flex justify-end space-x-4">
-        <button id="confirmCancelBtn" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-full transition-colors">Cancel</button>
-        <button id="confirmDeleteBtn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full transition-colors">Delete</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    setLogLevel('debug');
-
-    const userIdDisplay = document.getElementById('userIdDisplay');
-    const mainPageContainer = document.getElementById('mainPageContainer');
-    const viewMembersPageContainer = document.getElementById('viewMembersPageContainer');
-    const membersContainer = document.getElementById('membersContainer');
+  <script>
     const addMemberBtn = document.getElementById('addMemberBtn');
-    const viewMembersBtn = document.getElementById('viewMembersBtn');
-    const backToMainBtn = document.getElementById('backToMainBtn');
-    const memberModal = document.getElementById('memberModal');
-    const modalTitle = document.getElementById('modalTitle');
+    const addMemberForm = document.getElementById('addMemberForm');
+
+    addMemberBtn.addEventListener('click', () => {
+      addMemberForm.classList.toggle('hidden');
+      addMemberForm.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Optionally, handle form submission
     const memberForm = document.getElementById('memberForm');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const confirmModal = document.getElementById('confirmModal');
-    const confirmCancelBtn = document.getElementById('confirmCancelBtn');
-    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-    const addFamilyMemberBtn = document.getElementById('addFamilyMemberBtn');
-    const familyMembersContainer = document.getElementById('familyMembersContainer');
-    const loadingMessage = document.getElementById('loadingMessage');
-    const errorMessage = document.getElementById('errorMessage');
-
-    let app, auth, db, userId;
-    let membersRef;
-    let currentMemberId = null;
-
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-    const showError = (msg) => {
-      errorMessage.textContent = msg;
-      errorMessage.classList.remove('hidden');
-    };
-
-    const initFirebase = async () => {
-      try {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-
-        onAuthStateChanged(auth, async (user) => {
-          if (user) {
-            userId = user.uid;
-            userIdDisplay.textContent = userId;
-            membersRef = collection(db, "artifacts", appId, "users", userId, "members");
-            setupRealtimeListener();
-          } else {
-            loadingMessage.textContent = 'Please wait, signing you in...';
-          }
-        });
-
-        if (initialAuthToken) {
-          await signInWithCustomToken(auth, initialAuthToken);
-        } else {
-          await signInAnonymously(auth);
-        }
-      } catch (error) {
-        showError("Firebase Initialization Error. Check console.");
-        console.error(error);
-      }
-    };
-
-    const setupRealtimeListener = () => {
-      onSnapshot(membersRef, (snapshot) => {
-        const members = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderMembers(members);
-      }, (error) => {
-        showError("Failed to fetch members.");
-        console.error(error);
-      });
-    };
-
-    const showPage = (page) => {
-      mainPageContainer.classList.add('hidden');
-      viewMembersPageContainer.classList.add('hidden');
-      if (page === 'main') mainPageContainer.classList.remove('hidden');
-      if (page === 'view') viewMembersPageContainer.classList.remove('hidden');
-    };
-
-    const renderFamilyMembers = (familyMembers = []) => {
-      familyMembersContainer.innerHTML = '';
-      familyMembers.forEach(member => {
-        const div = document.createElement('div');
-        div.className = "flex space-x-2 items-center";
-        div.innerHTML = `
-          <input type="text" value="${member.name || ''}" placeholder="Name" class="flex-1 p-2 rounded-lg border border-gray-600 bg-gray-700 text-white">
-          <input type="text" value="${member.relationship || ''}" placeholder="Relationship" class="flex-1 p-2 rounded-lg border border-gray-600 bg-gray-700 text-white">
-          <button type="button" aria-label="Remove family member" class="remove-family-member-btn text-red-500 hover:text-red-700">
-            ✖
-          </button>
-        `;
-        div.querySelector('.remove-family-member-btn').onclick = () => div.remove();
-        familyMembersContainer.appendChild(div);
-      });
-    };
-
-    const renderMembers = (members) => {
-      membersContainer.innerHTML = '';
-      loadingMessage.classList.add('hidden');
-      if (members.length === 0) {
-        membersContainer.innerHTML = `<p class="col-span-full text-center text-gray-400">No members found. Add one to get started!</p>`;
-        return;
-      }
-      members.forEach(member => {
-        const card = document.createElement('div');
-        card.className = "bg-gray-700 rounded-2xl shadow-lg p-6 flex flex-col justify-between hover:scale-105 transition-transform";
-        const nameEl = document.createElement('h3');
-        nameEl.textContent = member.name;
-        nameEl.className = "text-2xl font-bold text-white";
-
-        const sexEl = document.createElement('p');
-        sexEl.textContent = member.sex;
-        sexEl.className = "text-sm font-medium text-gray-400";
-
-        const birthdayEl = document.createElement('p');
-        birthdayEl.textContent = `Birthday: ${member.birthday}`;
-        birthdayEl.className = "text-sm text-gray-300";
-
-        const paymentEl = document.createElement('p');
-        paymentEl.textContent = `Payment: ${member.paymentDetails || 'N/A'}`;
-        paymentEl.className = "text-sm text-gray-300";
-
-        const familyDiv = document.createElement('div');
-        if (member.familyMembers?.length) {
-          const label = document.createElement('p');
-          label.textContent = "Family Members:";
-          label.className = "font-semibold text-gray-300";
-          const list = document.createElement('ul');
-          list.className = "list-disc list-inside space-y-1 mt-1";
-          member.familyMembers.forEach(fm => {
-            const li = document.createElement('li');
-            li.textContent = `${fm.name} (${fm.relationship})`;
-            li.className = "text-gray-400";
-            list.appendChild(li);
-          });
-          familyDiv.append(label, list);
-        }
-
-        const buttonsDiv = document.createElement('div');
-        buttonsDiv.className = "flex justify-end space-x-2 mt-4";
-        const editBtn = document.createElement('button');
-        editBtn.textContent = "Edit";
-        editBtn.className = "edit-btn text-blue-400 hover:text-blue-300 font-medium";
-        editBtn.dataset.id = member.id;
-        editBtn.onclick = () => showEditModal(member.id);
-
-        const delBtn = document.createElement('button');
-        delBtn.textContent = "Delete";
-        delBtn.className = "delete-btn text-red-400 hover:text-red-300 font-medium";
-        delBtn.dataset.id = member.id;
-        delBtn.onclick = () => showDeleteConfirm(member.id);
-
-        buttonsDiv.append(editBtn, delBtn);
-
-        card.append(nameEl, sexEl, birthdayEl, paymentEl, familyDiv, buttonsDiv);
-        membersContainer.appendChild(card);
-      });
-    };
-
-    const showModal = () => {
-      memberModal.classList.remove('hidden');
-      setTimeout(() => {
-        memberModal.querySelector('div').classList.remove('scale-95', 'opacity-0');
-        memberModal.querySelector('div').classList.add('scale-100', 'opacity-100');
-      }, 50);
-    };
-    const hideModal = () => {
-      memberModal.querySelector('div').classList.remove('scale-100', 'opacity-100');
-      memberModal.querySelector('div').classList.add('scale-95', 'opacity-0');
-      setTimeout(() => memberModal.classList.add('hidden'), 300);
-    };
-    const showConfirm = () => {
-      confirmModal.classList.remove('hidden');
-      setTimeout(() => {
-        confirmModal.querySelector('div').classList.remove('scale-95', 'opacity-0');
-        confirmModal.querySelector('div').classList.add('scale-100', 'opacity-100');
-      }, 50);
-    };
-    const hideConfirm = () => {
-      confirmModal.querySelector('div').classList.remove('scale-100', 'opacity-100');
-      confirmModal.querySelector('div').classList.add('scale-95', 'opacity-0');
-      setTimeout(() => confirmModal.classList.add('hidden'), 300);
-    };
-
-    const showEditModal = async (id) => {
-      currentMemberId = id;
-      modalTitle.textContent = "Edit Member";
-      try {
-        const docRef = doc(db, "artifacts", appId, "users", userId, "members", id);
-        const snap = await getDoc(docRef);
-        if (snap.exists()) {
-          const data = snap.data();
-          memberForm.name.value = data.name || '';
-          memberForm.birthday.value = data.birthday || '';
-          memberForm.sex.value = data.sex || '';
-          memberForm.paymentDetails.value = data.paymentDetails || '';
-          renderFamilyMembers(data.familyMembers || []);
-          showModal();
-        }
-      } catch (err) {
-        showError("Error loading member.");
-        console.error(err);
-      }
-    };
-    const showDeleteConfirm = (id) => {
-      currentMemberId = id;
-      showConfirm();
-    };
-
-    addMemberBtn.onclick = () => {
-      currentMemberId = null;
-      modalTitle.textContent = "Add New Member";
-      memberForm.reset();
-      renderFamilyMembers();
-      showModal();
-    };
-    viewMembersBtn.onclick = () => showPage('view');
-    backToMainBtn.onclick = () => showPage('main');
-    cancelBtn.onclick = hideModal;
-
-    addFamilyMemberBtn.onclick = () => {
-      const div = document.createElement('div');
-      div.className = "flex space-x-2 items-center";
-      div.innerHTML = `
-        <input type="text" placeholder="Name" class="flex-1 p-2 rounded-lg border border-gray-600 bg-gray-700 text-white">
-        <input type="text" placeholder="Relationship" class="flex-1 p-2 rounded-lg border border-gray-600 bg-gray-700 text-white">
-        <button type="button" aria-label="Remove family member" class="remove-family-member-btn text-red-500 hover:text-red-700">✖</button>
-      `;
-      div.querySelector('.remove-family-member-btn').onclick = () => div.remove();
-      familyMembersContainer.appendChild(div);
-    };
-
-    memberForm.onsubmit = async (e) => {
+    memberForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const data = Object.fromEntries(new FormData(memberForm).entries());
-      const familyMembers = Array.from(familyMembersContainer.children).map(div => {
-        const inputs = div.querySelectorAll('input');
-        return { name: inputs[0]?.value || '', relationship: inputs[1]?.value || '' };
-      }).filter(fm => fm.name);
-      data.familyMembers = familyMembers;
-      data.timestamp = serverTimestamp();
-
-      try {
-        if (currentMemberId) {
-          const ref = doc(db, "artifacts", appId, "users", userId, "members", currentMemberId);
-          await updateDoc(ref, data);
-        } else {
-          await addDoc(membersRef, data);
-        }
-        hideModal();
-      } catch (err) {
-        showError("Error saving member.");
-        console.error(err);
-      }
-    };
-
-    confirmCancelBtn.onclick = hideConfirm;
-    confirmDeleteBtn.onclick = async () => {
-      if (!currentMemberId) return;
-      try {
-        const ref = doc(db, "artifacts", appId, "users", userId, "members", currentMemberId);
-        await deleteDoc(ref);
-        hideConfirm();
-      } catch (err) {
-        showError("Error deleting member.");
-        console.error(err);
-      }
-    };
-
-    initFirebase();
+      alert('Member submitted: ' + memberForm.memberName.value);
+      memberForm.reset();
+    });
   </script>
 </body>
 </html>
