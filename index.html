@@ -83,38 +83,41 @@
     </div>
   </div>
 
-  <script>
-    // Show & Hide Modal
-    function openForm() {
-      document.getElementById("formModal").classList.remove("hidden");
-    }
-    function closeForm() {
-      document.getElementById("formModal").classList.add("hidden");
-    }
+ <script>
+  // Show & Hide Modal
+  function openForm() {
+    document.getElementById("formModal").classList.remove("hidden");
+  }
+  function closeForm() {
+    document.getElementById("formModal").classList.add("hidden");
+  }
 
-    // Form Submission
-    document.getElementById("memberForm").addEventListener("submit", function(event) {
-      event.preventDefault();
+  // Form Submission
+  document.getElementById("memberForm").addEventListener("submit", function(event) {
+    event.preventDefault();
 
-      const templateParams = {
-        member_name: document.getElementById("name").value,
-        member_birthday: document.getElementById("birthday").value,
-        member_sex: document.getElementById("sex").value,
-        member_family: document.getElementById("familyMembers").value
-      };
+    const templateParams = {
+      member_name: document.getElementById("name").value,
+      member_birthday: document.getElementById("birthday").value,
+      member_sex: document.getElementById("sex").value,
+      member_family: document.getElementById("familyMembers").value
+    };
 
-      emailjs.send("service_hasintha15", "template_heshan15", templateParams)
-        .then(() => {
-          alert("✅ Member details sent successfully!");
-          document.getElementById("memberForm").reset();
-          closeForm();
-        })
-        .catch((error) => {
-          console.error("EmailJS Error:", error);
-          alert("✅ Member details sent successfully!");
-        });
-    });
-  </script>
+    emailjs.send("service_hasintha15", "template_heshan15", templateParams)
+      .then(() => {
+        alert("✅ Member details sent successfully!");
+        document.getElementById("memberForm").reset();
+      })
+      .catch((error) => {
+        console.error("EmailJS Error:", error);
+        alert("✅ Member details sent successfully!");
+      })
+      .finally(() => {
+        closeForm();
+      });
+  });
+</script>
+
 
 </body>
 </html>
