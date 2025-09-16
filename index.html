@@ -3,107 +3,115 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Death Benefit Society - Member Management</title>
+  <title>Member Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-  <style>
-    body { font-family: 'Inter', sans-serif; background-color: #1f2937; }
-  </style>
+  <script>
+    // ✅ Initialize EmailJS
+    (function() {
+      emailjs.init("tJyzNke0fsVsl0czT"); 
+    })();
+  </script>
 </head>
-<body class="bg-gray-900 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center">
 
-  <div id="mainContainer" class="bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-10 w-full max-w-4xl mx-auto flex flex-col space-y-8">
-    <header class="text-center space-y-2">
-      <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">Death Benefit Society</h1>
-    </header>
+  <!-- Main Section -->
+  <h1 class="text-3xl font-bold mb-6">👥 Member Management</h1>
+  
+  <div class="space-x-4">
+    <button onclick="openForm()" 
+      class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg">
+      ➕ Add New Member
+    </button>
+    <button onclick="window.open('https://docs.google.com/spreadsheets/d/14a39saiscm07b_0uXkm4ShB5NysLfS-RWPNoanLUppU/edit?gid=0#gid=0','_blank')" 
+      class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl shadow-lg">
+      📄 View All Members
+    </button>
+  </div>
 
-    <div class="flex justify-center space-x-4">
-      <button id="addMemberBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full">Add New Member</button>
-      <button id="viewMembersBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-full">View All Members</button>
-    </div>
-
-    <!-- Add Member Form (hidden initially) -->
-    <div id="addMemberForm" class="hidden mt-6 bg-gray-700 p-6 rounded-2xl">
-      <h2 class="text-2xl font-bold text-white mb-4 text-center">Add New Member</h2>
+  <!-- Modal (hidden by default) -->
+  <div id="formModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
+    <div class="bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-lg relative">
+      <button onclick="closeForm()" 
+        class="absolute top-3 right-3 text-gray-400 hover:text-white text-2xl">&times;</button>
+      
+      <h2 class="text-2xl font-semibold mb-6">Add Member</h2>
+      
       <form id="memberForm" class="space-y-4">
+        <!-- Name -->
         <div>
-          <label for="memberName" class="block text-gray-200 font-medium mb-1">Name</label>
-          <input type="text" id="memberName" name="name" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-800 text-white">
+          <label for="name" class="block text-gray-200 font-medium mb-1">Full Name</label>
+          <input type="text" id="name" name="name" required 
+            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white">
         </div>
+
+        <!-- Birthday -->
         <div>
-          <label for="memberBirthday" class="block text-gray-200 font-medium mb-1">Birthday</label>
-          <input type="date" id="memberBirthday" name="birthday" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-800 text-white">
+          <label for="birthday" class="block text-gray-200 font-medium mb-1">Birthday</label>
+          <input type="date" id="birthday" name="birthday" required 
+            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white">
         </div>
+
+        <!-- Sex -->
         <div>
-          <label for="memberSex" class="block text-gray-200 font-medium mb-1">Sex</label>
-          <select id="memberSex" name="sex" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-800 text-white">
-            <option value="">Select...</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
+          <label for="sex" class="block text-gray-200 font-medium mb-1">Sex</label>
+          <select id="sex" name="sex" required 
+            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white">
+            <option value="">-- Select --</option>
+            <option value="Male">Male ♂️</option>
+            <option value="Female">Female ♀️</option>
+            <option value="Other">Other ⚧️</option>
           </select>
         </div>
+
+        <!-- Family Members -->
         <div>
           <label for="familyMembers" class="block text-gray-200 font-medium mb-1">
             Family Members (one per line, format: Name - Relation)
           </label>
-          <textarea id="familyMembers" name="family" rows="4" placeholder="John - Father&#10;Mary - Mother" 
-            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-800 text-white"></textarea>
+          <textarea id="familyMembers" name="family" rows="4" 
+            placeholder="John - Father&#10;Mary - Mother" 
+            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white"></textarea>
         </div>
-        <div class="flex justify-end space-x-4 pt-4">
-          <button type="reset" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-full">Clear</button>
-          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-full">Submit</button>
-        </div>
+
+        <!-- Submit -->
+        <button type="submit" 
+          class="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl font-semibold">
+          🚀 Submit
+        </button>
       </form>
     </div>
   </div>
 
   <script>
-    // Initialize EmailJS
-    emailjs.init("tJyzNke0fsVsl0czT"); 
+    // Show & Hide Modal
+    function openForm() {
+      document.getElementById("formModal").classList.remove("hidden");
+    }
+    function closeForm() {
+      document.getElementById("formModal").classList.add("hidden");
+    }
 
-    const addMemberBtn = document.getElementById('addMemberBtn');
-    const addMemberForm = document.getElementById('addMemberForm');
-    const viewMembersBtn = document.getElementById('viewMembersBtn');
-
-    // Show/hide the form
-    addMemberBtn.addEventListener('click', () => {
-      addMemberForm.classList.toggle('hidden');
-      addMemberForm.scrollIntoView({ behavior: 'smooth' });
-    });
-
-    // Open Google Sheet or Doc when clicking View All Members
-    viewMembersBtn.addEventListener('click', () => {
-      const sheetUrl = "https://docs.google.com/spreadsheets/d/14a39saiscm07b_0uXkm4ShB5NysLfS-RWPNoanLUppU/edit?usp=sharing"; 
-      window.open(sheetUrl, "_blank");
-    });
-
-    // Handle form submission
-    const memberForm = document.getElementById('memberForm');
-    memberForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const name = memberForm.name.value;
-      const birthday = memberForm.birthday.value;
-      const sex = memberForm.sex.value;
-      const family = memberForm.family.value;
+    // Form Submission
+    document.getElementById("memberForm").addEventListener("submit", function(event) {
+      event.preventDefault();
 
       const templateParams = {
-        member_name: name,
-        member_birthday: birthday,
-        member_sex: sex,
-        member_family: family
+        member_name: document.getElementById("name").value,
+        member_birthday: document.getElementById("birthday").value,
+        member_sex: document.getElementById("sex").value,
+        member_family: document.getElementById("familyMembers").value
       };
 
-      emailjs.send("service_c14ex88", "template_4ilwcir", templateParams)
-        .then(function(response) {
-          alert("Member information sent successfully!");
-          memberForm.reset();
-          addMemberForm.classList.add('hidden');
-        }, function(error) {
-          alert("Failed to send email. Please try again.");
-          console.error(error);
+      emailjs.send("service_hasintha15", "template_heshan15", templateParams)
+        .then(() => {
+          alert("✅ Member details sent successfully!");
+          document.getElementById("memberForm").reset();
+          closeForm();
+        })
+        .catch((error) => {
+          console.error("EmailJS Error:", error);
+          alert("❌ Failed to send email. Please check console for details.");
         });
     });
   </script>
