@@ -5,20 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Member Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
-  <script>
-    // ✅ Initialize EmailJS
-    (function() {
-      emailjs.init("tJyzNke0fsVsl0czT"); 
-    })();
-  </script>
 </head>
 <body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center">
 
   <!-- Main Section -->
-  <h1 class="text-3xl font-bold mb-6">Member Management</h1>
+  <h1 class="text-3xl font-bold mb-6">👥 Member Management</h1>
   
-  <div class="space-x-4">
+  <div class="space-x-4 mb-4">
     <button onclick="openForm()" 
       class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg">
       ➕ Add New Member
@@ -27,11 +20,45 @@
       class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl shadow-lg">
       📄 View All Members
     </button>
+    <button id="downloadBtn" onclick="downloadSubmissions()" 
+      class="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl shadow-lg hidden">
+      💾 Download Data
+    </button>
+    <button id="ownerLoginBtn" onclick="showOwnerLogin()" 
+      class="px-6 py-3 bg-gray-600 hover:bg-gray-700 rounded-xl shadow-lg">
+      🔐 Owner Access
+    </button>
+  </div>
+
+  <!-- Status Display -->
+  <div id="statusDisplay" class="hidden mb-4 p-4 rounded-xl max-w-2xl w-full mx-4"></div>
+
+  <!-- Owner Login Modal -->
+  <div id="ownerModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
+    <div class="bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-sm relative mx-4">
+      <button onclick="closeOwnerLogin()" 
+        class="absolute top-3 right-3 text-gray-400 hover:text-white text-2xl">&times;</button>
+      
+      <h2 class="text-2xl font-semibold mb-6 text-center">🔐 Owner Access</h2>
+      
+      <form id="ownerForm" class="space-y-4">
+        <div>
+          <label for="ownerPassword" class="block text-gray-200 font-medium mb-1">Password</label>
+          <input type="password" id="ownerPassword" required 
+            placeholder="Enter owner password"
+            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white">
+        </div>
+        <button type="submit" 
+          class="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl font-semibold">
+          🔓 Unlock Owner Features
+        </button>
+      </form>
+    </div>
   </div>
 
   <!-- Modal (hidden by default) -->
   <div id="formModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
-    <div class="bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-lg relative">
+    <div class="bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-lg relative mx-4">
       <button onclick="closeForm()" 
         class="absolute top-3 right-3 text-gray-400 hover:text-white text-2xl">&times;</button>
       
@@ -58,9 +85,9 @@
           <select id="sex" name="sex" required 
             class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white">
             <option value="">-- Select --</option>
-            <option value="Male">Male </option>
-            <option value="Female">Female </option>
-            <option value="Other">Other </option>
+            <option value="Male">Male ♂️</option>
+            <option value="Female">Female ♀️</option>
+            <option value="Other">Other ⚧️</option>
           </select>
         </div>
 
@@ -74,47 +101,185 @@
             class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white"></textarea>
         </div>
 
-        <!-- Submit -->
-        <button type="submit" 
-          class="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl font-semibold">
-          🚀 Submit
-        </button>
+        <!-- Submit Options -->
+        <div class="space-y-3">
+          <button type="submit" data-method="local"
+            class="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl font-semibold">
+            💾 Save Locally (Recommended)
+          </button>
+          <button type="button" onclick="copyToClipboard()"
+            class="w-full py-3 bg-green-500 hover:bg-green-600 rounded-xl font-semibold">
+            📋 Copy to Clipboard
+          </button>
+        </div>
       </form>
     </div>
   </div>
 
  <script>
+  let memberData = [];
+  let isOwner = false;
+  const OWNER_PASSWORD = "admin2024"; // Change this to your desired password
+
+  // Load existing data from localStorage
+  function loadData() {
+    const saved = localStorage.getItem('memberData');
+    if (saved) {
+      memberData = JSON.parse(saved);
+    }
+  }
+
+  // Save data to localStorage
+  function saveData() {
+    localStorage.setItem('memberData', JSON.stringify(memberData));
+  }
+
   // Show & Hide Modal
   function openForm() {
     document.getElementById("formModal").classList.remove("hidden");
   }
+  
   function closeForm() {
     document.getElementById("formModal").classList.add("hidden");
+  }
+
+  // Show status message
+  function showStatus(message, isSuccess = true) {
+    const statusDiv = document.getElementById('statusDisplay');
+    statusDiv.className = `mb-4 p-4 rounded-xl max-w-2xl w-full mx-4 ${isSuccess ? 'bg-green-600' : 'bg-red-600'}`;
+    statusDiv.textContent = message;
+    statusDiv.classList.remove('hidden');
+    setTimeout(() => statusDiv.classList.add('hidden'), 5000);
   }
 
   // Form Submission
   document.getElementById("memberForm").addEventListener("submit", function(event) {
     event.preventDefault();
-
-    const templateParams = {
-      member_name: document.getElementById("name").value,
-      member_birthday: document.getElementById("birthday").value,
-      member_sex: document.getElementById("sex").value,
-      member_family: document.getElementById("familyMembers").value
+    
+    const formData = {
+      name: document.getElementById("name").value,
+      birthday: document.getElementById("birthday").value,
+      sex: document.getElementById("sex").value,
+      family: document.getElementById("familyMembers").value,
+      timestamp: new Date().toISOString()
     };
 
-    emailjs.send("service_hasintha15", "template_heshan15", templateParams)
-      .then(() => {
-        alert("✅ Member details sent successfully!");
-        document.getElementById("memberForm").reset();
-      })
-      .catch((error) => {
-        console.error("EmailJS Error:", error);
-        alert("✅ Member details sent successfully!");
-      })
-      .finally(() => {
-        closeForm();
-      });
+    // Save to local storage
+    memberData.push(formData);
+    saveData();
+    
+    showStatus(`✅ Member "${formData.name}" saved successfully! Data stored locally.`);
+    document.getElementById("memberForm").reset();
+    closeForm();
+  });
+
+  // Copy form data to clipboard
+  function copyToClipboard() {
+    const formData = {
+      name: document.getElementById("name").value,
+      birthday: document.getElementById("birthday").value,
+      sex: document.getElementById("sex").value,
+      family: document.getElementById("familyMembers").value
+    };
+
+    const text = `Name: ${formData.name}\nBirthday: ${formData.birthday}\nSex: ${formData.sex}\nFamily Members:\n${formData.family}`;
+    
+    navigator.clipboard.writeText(text).then(() => {
+      showStatus("📋 Member data copied to clipboard!");
+    }).catch(() => {
+      showStatus("❌ Failed to copy to clipboard", false);
+    });
+  }
+
+  // Download all submissions as JSON (Owner only)
+  function downloadSubmissions() {
+    if (!isOwner) {
+      showStatus("❌ Access denied. Owner login required.", false);
+      return;
+    }
+
+    if (memberData.length === 0) {
+      showStatus("📝 No data to download. Add some members first!", false);
+      return;
+    }
+
+    const dataStr = JSON.stringify(memberData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `member_data_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    showStatus(`💾 Downloaded ${memberData.length} member records!`);
+  }
+
+  // Owner authentication functions
+  function showOwnerLogin() {
+    document.getElementById("ownerModal").classList.remove("hidden");
+  }
+  
+  function closeOwnerLogin() {
+    document.getElementById("ownerModal").classList.add("hidden");
+    document.getElementById("ownerPassword").value = "";
+  }
+
+  // Handle owner login
+  document.getElementById("ownerForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    
+    const password = document.getElementById("ownerPassword").value;
+    
+    if (password === OWNER_PASSWORD) {
+      isOwner = true;
+      localStorage.setItem('ownerAccess', 'true');
+      showOwnerFeatures();
+      showStatus("🔓 Owner access granted! Download button is now visible.");
+      closeOwnerLogin();
+    } else {
+      showStatus("❌ Incorrect password. Access denied.", false);
+      document.getElementById("ownerPassword").value = "";
+    }
+  });
+
+  // Show/hide owner features
+  function showOwnerFeatures() {
+    document.getElementById("downloadBtn").classList.remove("hidden");
+    document.getElementById("ownerLoginBtn").classList.add("hidden");
+  }
+
+  function hideOwnerFeatures() {
+    document.getElementById("downloadBtn").classList.add("hidden");
+    document.getElementById("ownerLoginBtn").classList.remove("hidden");
+  }
+
+  // Check if owner is already logged in
+  function checkOwnerStatus() {
+    const savedOwnerAccess = localStorage.getItem('ownerAccess');
+    if (savedOwnerAccess === 'true') {
+      isOwner = true;
+      showOwnerFeatures();
+    } else {
+      hideOwnerFeatures();
+    }
+  }
+
+  // Logout owner (call this from browser console to logout: ownerLogout())
+  function ownerLogout() {
+    isOwner = false;
+    localStorage.removeItem('ownerAccess');
+    hideOwnerFeatures();
+    showStatus("🔒 Owner access revoked.");
+  }
+
+  // Initialize
+  window.addEventListener('load', function() {
+    loadData();
+    checkOwnerStatus();
+    if (memberData.length > 0) {
+      showStatus(`📊 ${memberData.length} member(s) loaded from local storage.`);
+    }
   });
 </script>
 
