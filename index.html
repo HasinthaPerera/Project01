@@ -6,28 +6,47 @@
   <title>Member Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center">
+<body class="bg-gray-900 text-white min-h-screen">
 
-  <!-- Main Section -->
-  <h1 class="text-3xl font-bold mb-6">👥 Member Management</h1>
-  
-  <div class="space-x-4 mb-4">
-    <button onclick="openForm()" 
-      class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg">
-      ➕ Add New Member
-    </button>
-    <button onclick="window.open('https://docs.google.com/spreadsheets/d/14a39saiscm07b_0uXkm4ShB5NysLfS-RWPNoanLUppU/edit?gid=0#gid=0','_blank')" 
-      class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl shadow-lg">
-      📄 View All Members
-    </button>
-    <button id="downloadBtn" onclick="downloadSubmissions()" 
-      class="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl shadow-lg hidden">
-      💾 Download Data
-    </button>
-    <button id="ownerLoginBtn" onclick="showOwnerLogin()" 
-      class="px-6 py-3 bg-gray-600 hover:bg-gray-700 rounded-xl shadow-lg">
-      🔐 Owner Access
-    </button>
+  <!-- Top Navigation/Authentication Section -->
+  <div class="w-full bg-gray-800 shadow-lg">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Member Management</h1>
+      <div class="space-x-3">
+        <button id="ownerLoginBtn" onclick="showOwnerLogin()" 
+          class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg shadow text-sm">
+          🔐 Owner Login
+        </button>
+        <button id="ownerLogoutBtn" onclick="ownerLogout()" 
+          class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg shadow text-sm hidden">
+          🔒 Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Section -->
+  <div class="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4">
+    <div class="text-center mb-8">
+      <h2 class="text-3xl font-bold mb-2">Welcome to Member Management</h2>
+      <p class="text-gray-300">Manage your organization's member data efficiently</p>
+    </div>
+    
+    <!-- Main Action Buttons -->
+    <div class="space-x-4 mb-4">
+      <button onclick="openForm()" 
+        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg">
+        ➕ Add New Member
+      </button>
+      <button onclick="window.open('https://docs.google.com/spreadsheets/d/14a39saiscm07b_0uXkm4ShB5NysLfS-RWPNoanLUppU/edit?gid=0#gid=0','_blank')" 
+        class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl shadow-lg">
+        📄 View All Members
+      </button>
+      <button id="downloadBtn" onclick="downloadSubmissions()" 
+        class="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl shadow-lg hidden">
+        💾 Download Data
+      </button>
+    </div>
   </div>
 
   <!-- Status Display -->
@@ -119,7 +138,7 @@
  <script>
   let memberData = [];
   let isOwner = false;
-  const OWNER_PASSWORD = "admin2024"; // Change this to your desired password
+  const OWNER_PASSWORD = "hasintha15$"; 
 
   // Load existing data from localStorage
   function loadData() {
@@ -247,11 +266,13 @@
   function showOwnerFeatures() {
     document.getElementById("downloadBtn").classList.remove("hidden");
     document.getElementById("ownerLoginBtn").classList.add("hidden");
+    document.getElementById("ownerLogoutBtn").classList.remove("hidden");
   }
 
   function hideOwnerFeatures() {
     document.getElementById("downloadBtn").classList.add("hidden");
     document.getElementById("ownerLoginBtn").classList.remove("hidden");
+    document.getElementById("ownerLogoutBtn").classList.add("hidden");
   }
 
   // Check if owner is already logged in
