@@ -5,56 +5,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Member Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom animations */
+    @keyframes fadeInScale {
+      0% { opacity: 0; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes fadeOutScale {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.9); }
+    }
+    @keyframes slideDownFade {
+      0% { opacity: 0; transform: translateY(-10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
 
-  <!-- Top Navigation/Authentication Section -->
-  <div class="w-full bg-gray-800 shadow-lg">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="text-2xl font-bold">Member Management</h1>
-      <div class="space-x-3">
-        <button id="ownerLoginBtn" onclick="showOwnerLogin()" 
-          class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg shadow text-sm">
-          🔐 Owner Login
-        </button>
-        <button id="ownerLogoutBtn" onclick="ownerLogout()" 
-          class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg shadow text-sm hidden">
-          🔒 Logout
-        </button>
-      </div>
-    </div>
+  <!-- Owner Access Section at Top -->
+  <div class="flex justify-end p-4">
+    <button id="ownerLoginBtn" onclick="showOwnerLogin()" 
+      class="px-6 py-3 bg-gray-600 hover:bg-gray-700 rounded-xl shadow-lg animate-pulse transform hover:scale-105 transition">
+      🔐 Owner Access
+    </button>
+    <button id="downloadBtn" onclick="downloadSubmissions()" 
+      class="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-4">
+      💾 Download Data
+    </button>
   </div>
 
-  <!-- Main Content Section -->
-  <div class="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] px-4">
-    <div class="text-center mb-8">
-      <h2 class="text-3xl font-bold mb-2">Welcome to Member Management</h2>
-      <p class="text-gray-300">Manage your organization's member data efficiently</p>
-    </div>
+  <!-- Main Section (Centered) -->
+  <div class="min-h-screen flex flex-col items-center justify-center -mt-20">
+    <h1 class="text-3xl font-bold mb-6 animate-pulse">🚀 Member Management</h1>
     
-    <!-- Main Action Buttons -->
     <div class="space-x-4 mb-4">
       <button onclick="openForm()" 
-        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg">
+        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg transform hover:scale-105 transition">
         ➕ Add New Member
       </button>
       <button onclick="window.open('https://docs.google.com/spreadsheets/d/14a39saiscm07b_0uXkm4ShB5NysLfS-RWPNoanLUppU/edit?gid=0#gid=0','_blank')" 
-        class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl shadow-lg">
+        class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl shadow-lg transform hover:scale-105 transition">
         📄 View All Members
       </button>
-      <button id="downloadBtn" onclick="downloadSubmissions()" 
-        class="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl shadow-lg hidden">
-        💾 Download Data
-      </button>
     </div>
+    
+    <!-- Status Display -->
+    <div id="statusDisplay" class="hidden mb-4 p-4 rounded-xl max-w-2xl w-full mx-4 animate-[slideDownFade_0.5s_ease]"></div>
   </div>
-
-  <!-- Status Display -->
-  <div id="statusDisplay" class="hidden mb-4 p-4 rounded-xl max-w-2xl w-full mx-4"></div>
 
   <!-- Owner Login Modal -->
   <div id="ownerModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
-    <div class="bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-sm relative mx-4">
+    <div class="bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-sm relative mx-4 animate-[fadeInScale_0.3s_ease]">
       <button onclick="closeOwnerLogin()" 
         class="absolute top-3 right-3 text-gray-400 hover:text-white text-2xl">&times;</button>
       
@@ -65,19 +67,19 @@
           <label for="ownerPassword" class="block text-gray-200 font-medium mb-1">Password</label>
           <input type="password" id="ownerPassword" required 
             placeholder="Enter owner password"
-            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white">
+            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 transition">
         </div>
         <button type="submit" 
-          class="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl font-semibold">
+          class="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl font-semibold transform hover:scale-105 transition">
           🔓 Unlock Owner Features
         </button>
       </form>
     </div>
   </div>
 
-  <!-- Modal (hidden by default) -->
+  <!-- Add Member Modal -->
   <div id="formModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
-    <div class="bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-lg relative mx-4">
+    <div class="bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-lg relative mx-4 animate-[fadeInScale_0.3s_ease]">
       <button onclick="closeForm()" 
         class="absolute top-3 right-3 text-gray-400 hover:text-white text-2xl">&times;</button>
       
@@ -88,21 +90,21 @@
         <div>
           <label for="name" class="block text-gray-200 font-medium mb-1">Full Name</label>
           <input type="text" id="name" name="name" required 
-            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white">
+            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 transition">
         </div>
 
         <!-- Birthday -->
         <div>
           <label for="birthday" class="block text-gray-200 font-medium mb-1">Birthday</label>
           <input type="date" id="birthday" name="birthday" required 
-            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white">
+            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-green-500 transition">
         </div>
 
         <!-- Sex -->
         <div>
           <label for="sex" class="block text-gray-200 font-medium mb-1">Sex</label>
           <select id="sex" name="sex" required 
-            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white">
+            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-purple-500 transition">
             <option value="">-- Select --</option>
             <option value="Male">Male ♂️</option>
             <option value="Female">Female ♀️</option>
@@ -117,17 +119,17 @@
           </label>
           <textarea id="familyMembers" name="family" rows="4" 
             placeholder="John - Father&#10;Mary - Mother" 
-            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white"></textarea>
+            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-pink-500 transition"></textarea>
         </div>
 
         <!-- Submit Options -->
         <div class="space-y-3">
           <button type="submit" data-method="local"
-            class="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl font-semibold">
+            class="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl font-semibold transform hover:scale-105 transition">
             💾 Save Locally (Recommended)
           </button>
           <button type="button" onclick="copyToClipboard()"
-            class="w-full py-3 bg-green-500 hover:bg-green-600 rounded-xl font-semibold">
+            class="w-full py-3 bg-green-500 hover:bg-green-600 rounded-xl font-semibold transform hover:scale-105 transition">
             📋 Copy to Clipboard
           </button>
         </div>
@@ -135,46 +137,38 @@
     </div>
   </div>
 
- <script>
+<script>
   let memberData = [];
   let isOwner = false;
-  const OWNER_PASSWORD = "hasintha15$"; 
+  const OWNER_PASSWORD = "Hasintha15$";
 
-  // Load existing data from localStorage
   function loadData() {
     const saved = localStorage.getItem('memberData');
-    if (saved) {
-      memberData = JSON.parse(saved);
-    }
+    if (saved) memberData = JSON.parse(saved);
   }
-
-  // Save data to localStorage
   function saveData() {
     localStorage.setItem('memberData', JSON.stringify(memberData));
   }
 
   // Show & Hide Modal
   function openForm() {
-    document.getElementById("formModal").classList.remove("hidden");
+    const modal = document.getElementById("formModal");
+    modal.classList.remove("hidden");
   }
-  
   function closeForm() {
     document.getElementById("formModal").classList.add("hidden");
   }
 
-  // Show status message
   function showStatus(message, isSuccess = true) {
     const statusDiv = document.getElementById('statusDisplay');
-    statusDiv.className = `mb-4 p-4 rounded-xl max-w-2xl w-full mx-4 ${isSuccess ? 'bg-green-600' : 'bg-red-600'}`;
+    statusDiv.className = `mb-4 p-4 rounded-xl max-w-2xl w-full mx-4 animate-[slideDownFade_0.5s_ease] ${isSuccess ? 'bg-green-600' : 'bg-red-600'}`;
     statusDiv.textContent = message;
     statusDiv.classList.remove('hidden');
     setTimeout(() => statusDiv.classList.add('hidden'), 5000);
   }
 
-  // Form Submission
   document.getElementById("memberForm").addEventListener("submit", function(event) {
     event.preventDefault();
-    
     const formData = {
       name: document.getElementById("name").value,
       birthday: document.getElementById("birthday").value,
@@ -182,17 +176,13 @@
       family: document.getElementById("familyMembers").value,
       timestamp: new Date().toISOString()
     };
-
-    // Save to local storage
     memberData.push(formData);
     saveData();
-    
-    showStatus(`✅ Member "${formData.name}" saved successfully! Data stored locally.`);
+    showStatus(`✅ Member "${formData.name}" saved successfully!`);
     document.getElementById("memberForm").reset();
     closeForm();
   });
 
-  // Copy form data to clipboard
   function copyToClipboard() {
     const formData = {
       name: document.getElementById("name").value,
@@ -200,93 +190,62 @@
       sex: document.getElementById("sex").value,
       family: document.getElementById("familyMembers").value
     };
-
     const text = `Name: ${formData.name}\nBirthday: ${formData.birthday}\nSex: ${formData.sex}\nFamily Members:\n${formData.family}`;
-    
     navigator.clipboard.writeText(text).then(() => {
       showStatus("📋 Member data copied to clipboard!");
     }).catch(() => {
-      showStatus("❌ Failed to copy to clipboard", false);
+      showStatus("❌ Failed to copy", false);
     });
   }
 
-  // Download all submissions as JSON (Owner only)
   function downloadSubmissions() {
-    if (!isOwner) {
-      showStatus("❌ Access denied. Owner login required.", false);
-      return;
-    }
-
-    if (memberData.length === 0) {
-      showStatus("📝 No data to download. Add some members first!", false);
-      return;
-    }
-
+    if (!isOwner) return showStatus("❌ Owner login required.", false);
+    if (memberData.length === 0) return showStatus("📝 No data to download.", false);
     const dataStr = JSON.stringify(memberData, null, 2);
-    const dataBlob = new Blob([dataStr], {type: 'application/json'});
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `member_data_${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
+    const blob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `member_data_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
     URL.revokeObjectURL(url);
-    
     showStatus(`💾 Downloaded ${memberData.length} member records!`);
   }
 
-  // Owner authentication functions
   function showOwnerLogin() {
     document.getElementById("ownerModal").classList.remove("hidden");
   }
-  
   function closeOwnerLogin() {
     document.getElementById("ownerModal").classList.add("hidden");
     document.getElementById("ownerPassword").value = "";
   }
 
-  // Handle owner login
   document.getElementById("ownerForm").addEventListener("submit", function(event) {
     event.preventDefault();
-    
     const password = document.getElementById("ownerPassword").value;
-    
     if (password === OWNER_PASSWORD) {
       isOwner = true;
       localStorage.setItem('ownerAccess', 'true');
       showOwnerFeatures();
-      showStatus("🔓 Owner access granted! Download button is now visible.");
+      showStatus("🔓 Owner access granted!");
       closeOwnerLogin();
     } else {
-      showStatus("❌ Incorrect password. Access denied.", false);
-      document.getElementById("ownerPassword").value = "";
+      showStatus("❌ Incorrect password.", false);
     }
   });
 
-  // Show/hide owner features
   function showOwnerFeatures() {
     document.getElementById("downloadBtn").classList.remove("hidden");
     document.getElementById("ownerLoginBtn").classList.add("hidden");
-    document.getElementById("ownerLogoutBtn").classList.remove("hidden");
   }
-
   function hideOwnerFeatures() {
     document.getElementById("downloadBtn").classList.add("hidden");
     document.getElementById("ownerLoginBtn").classList.remove("hidden");
-    document.getElementById("ownerLogoutBtn").classList.add("hidden");
   }
-
-  // Check if owner is already logged in
   function checkOwnerStatus() {
-    const savedOwnerAccess = localStorage.getItem('ownerAccess');
-    if (savedOwnerAccess === 'true') {
-      isOwner = true;
-      showOwnerFeatures();
-    } else {
-      hideOwnerFeatures();
-    }
+    if (localStorage.getItem('ownerAccess') === 'true') {
+      isOwner = true; showOwnerFeatures();
+    } else hideOwnerFeatures();
   }
-
-  // Logout owner (call this from browser console to logout: ownerLogout())
   function ownerLogout() {
     isOwner = false;
     localStorage.removeItem('ownerAccess');
@@ -294,7 +253,6 @@
     showStatus("🔒 Owner access revoked.");
   }
 
-  // Initialize
   window.addEventListener('load', function() {
     loadData();
     checkOwnerStatus();
@@ -303,7 +261,6 @@
     }
   });
 </script>
-
 
 </body>
 </html>
