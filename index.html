@@ -23,28 +23,35 @@
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
 
-  <!-- Owner Access Section at Top -->
-  <div class="flex justify-end p-4">
+  <!-- Owner Access + Language Switch -->
+  <div class="flex justify-end p-4 space-x-4">
+    <select id="languageSwitcher" onchange="setLanguage(this.value)" 
+      class="px-3 py-2 bg-gray-700 text-white rounded-lg">
+      <option value="en">English</option>
+      <option value="si">සිංහල</option>
+      <option value="ta">தமிழ்</option>
+    </select>
+
     <button id="ownerLoginBtn" onclick="showOwnerLogin()" 
       class="px-6 py-3 bg-gray-600 hover:bg-gray-700 rounded-xl shadow-lg animate-pulse transform hover:scale-105 transition">
       🔐 Owner Access
     </button>
     <button id="downloadBtn" onclick="downloadSubmissions()" 
-      class="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-4">
+      class="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-2">
       💾 Download Data
     </button>
   </div>
 
-  <!-- Main Section (Centered) -->
+  <!-- Main Section -->
   <div class="min-h-screen flex flex-col items-center justify-center -mt-20">
-    <h1 class="text-3xl font-bold mb-6 animate-pulse">🚀 Member Management</h1>
+    <h1 id="title" class="text-3xl font-bold mb-6 animate-pulse">🚀 Member Management</h1>
     
     <div class="space-x-4 mb-4">
-      <button onclick="openForm()" 
+      <button id="addMemberBtn" onclick="openForm()" 
         class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg transform hover:scale-105 transition">
         ➕ Add New Member
       </button>
-      <button onclick="window.open('https://docs.google.com/spreadsheets/d/14a39saiscm07b_0uXkm4ShB5NysLfS-RWPNoanLUppU/edit?gid=0#gid=0','_blank')" 
+      <button id="viewMembersBtn" onclick="window.open('https://docs.google.com/spreadsheets/d/14a39saiscm07b_0uXkm4ShB5NysLfS-RWPNoanLUppU/edit?gid=0#gid=0','_blank')" 
         class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl shadow-lg transform hover:scale-105 transition">
         📄 View All Members
       </button>
@@ -64,12 +71,12 @@
       
       <form id="ownerForm" class="space-y-4">
         <div>
-          <label for="ownerPassword" class="block text-gray-200 font-medium mb-1">Password</label>
+          <label for="ownerPassword" id="labelPassword" class="block text-gray-200 font-medium mb-1">Password</label>
           <input type="password" id="ownerPassword" required 
             placeholder="Enter owner password"
             class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 transition">
         </div>
-        <button type="submit" 
+        <button type="submit" id="unlockBtn"
           class="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl font-semibold transform hover:scale-105 transition">
           🔓 Unlock Owner Features
         </button>
@@ -83,26 +90,26 @@
       <button onclick="closeForm()" 
         class="absolute top-3 right-3 text-gray-400 hover:text-white text-2xl">&times;</button>
       
-      <h2 class="text-2xl font-semibold mb-6">Add Member</h2>
+      <h2 id="addMemberTitle" class="text-2xl font-semibold mb-6">Add Member</h2>
       
       <form id="memberForm" class="space-y-4">
         <!-- Name -->
         <div>
-          <label for="name" class="block text-gray-200 font-medium mb-1">Full Name</label>
+          <label for="name" id="labelName" class="block text-gray-200 font-medium mb-1">Full Name</label>
           <input type="text" id="name" name="name" required 
             class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 transition">
         </div>
 
         <!-- Birthday -->
         <div>
-          <label for="birthday" class="block text-gray-200 font-medium mb-1">Birthday</label>
+          <label for="birthday" id="labelBirthday" class="block text-gray-200 font-medium mb-1">Birthday</label>
           <input type="date" id="birthday" name="birthday" required 
             class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-green-500 transition">
         </div>
 
         <!-- Sex -->
         <div>
-          <label for="sex" class="block text-gray-200 font-medium mb-1">Sex</label>
+          <label for="sex" id="labelSex" class="block text-gray-200 font-medium mb-1">Sex</label>
           <select id="sex" name="sex" required 
             class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-purple-500 transition">
             <option value="">-- Select --</option>
@@ -114,7 +121,7 @@
 
         <!-- Family Members -->
         <div>
-          <label for="familyMembers" class="block text-gray-200 font-medium mb-1">
+          <label for="familyMembers" id="labelFamily" class="block text-gray-200 font-medium mb-1">
             Family Members (one per line, format: Name - Relation)
           </label>
           <textarea id="familyMembers" name="family" rows="4" 
@@ -124,11 +131,11 @@
 
         <!-- Submit Options -->
         <div class="space-y-3">
-          <button type="submit" data-method="local"
+          <button type="submit" data-method="local" id="saveLocalBtn"
             class="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl font-semibold transform hover:scale-105 transition">
             💾 Save Locally (Recommended)
           </button>
-          <button type="button" onclick="copyToClipboard()"
+          <button type="button" id="copyClipboardBtn" onclick="copyToClipboard()"
             class="w-full py-3 bg-green-500 hover:bg-green-600 rounded-xl font-semibold transform hover:scale-105 transition">
             📋 Copy to Clipboard
           </button>
@@ -142,6 +149,127 @@
   let isOwner = false;
   const OWNER_PASSWORD = "Hasintha15$";
 
+  // 🔤 Translations
+  const translations = {
+    en: {
+      title: "🚀 Member Management",
+      addMember: "➕ Add New Member",
+      viewMembers: "📄 View All Members",
+      ownerAccess: "🔐 Owner Access",
+      downloadData: "💾 Download Data",
+      addMemberTitle: "Add Member",
+      fullName: "Full Name",
+      birthday: "Birthday",
+      sex: "Sex",
+      select: "-- Select --",
+      male: "Male ♂️",
+      female: "Female ♀️",
+      other: "Other ⚧️",
+      familyMembers: "Family Members (one per line, format: Name - Relation)",
+      saveLocal: "💾 Save Locally (Recommended)",
+      copyClipboard: "📋 Copy to Clipboard",
+      password: "Password",
+      unlock: "🔓 Unlock Owner Features",
+      saved: name => `✅ Member "${name}" saved successfully!`,
+      copied: "📋 Member data copied to clipboard!",
+      copyFail: "❌ Failed to copy",
+      noData: "📝 No data to download.",
+      downloaded: count => `💾 Downloaded ${count} member records!`,
+      accessGranted: "🔓 Owner access granted!",
+      accessDenied: "❌ Incorrect password.",
+      revoked: "🔒 Owner access revoked.",
+      loaded: count => `📊 ${count} member(s) loaded from local storage.`
+    },
+    si: {
+      title: "🚀 සාමාජික කළමනාකරණය",
+      addMember: "➕ නව සාමාජිකයෙක් එක් කරන්න",
+      viewMembers: "📄 සියලු සාමාජිකයන් බලන්න",
+      ownerAccess: "🔐 හිමිකරු සඳහා ප්‍රවේශය",
+      downloadData: "💾 දත්ත බාගත කරන්න",
+      addMemberTitle: "සාමාජිකයෙක් එක් කරන්න",
+      fullName: "සම්පූර්ණ නම",
+      birthday: "උපන්දිනය",
+      sex: "ලිංගය",
+      select: "-- තෝරන්න --",
+      male: "පුරුෂ ♂️",
+      female: "ගැහැණු ♀️",
+      other: "වෙනත් ⚧️",
+      familyMembers: "පවුල් සාමාජිකයින් (එක් එක් පේළියකට, ආකෘතිය: නම - සම්බන්ධතාවය)",
+      saveLocal: "💾 ස්ථානයේ සුරකින්න (නිර්දේශිතයි)",
+      copyClipboard: "📋 පුවරුවට පිටපත් කරන්න",
+      password: "මුරපදය",
+      unlock: "🔓 හිමිකරු සඳහා විශේෂාංග විවෘත කරන්න",
+      saved: name => `✅ "${name}" සුරකින ලදි!`,
+      copied: "📋 දත්ත පුවරුවට පිටපත් කරන ලදි!",
+      copyFail: "❌ පිටපත් කිරීමට අසමත්",
+      noData: "📝 දත්ත නොමැත.",
+      downloaded: count => `💾 සාමාජික දත්ත ${count}ක් බාගත කරන ලදි!`,
+      accessGranted: "🔓 හිමිකරුගේ ප්‍රවේශය ලැබුණා!",
+      accessDenied: "❌ මුරපදය වැරදියි.",
+      revoked: "🔒 හිමිකරුගේ ප්‍රවේශය ඉවත් කළා.",
+      loaded: count => `📊 දේශීය ගබඩාවෙන් සාමාජිකයින් ${count} දෙනෙක් පූරණය කළා.`
+    },
+    ta: {
+      title: "🚀 உறுப்பினர் மேலாண்மை",
+      addMember: "➕ புதிய உறுப்பினரை சேர்க்கவும்",
+      viewMembers: "📄 அனைத்து உறுப்பினர்களையும் காண்க",
+      ownerAccess: "🔐 உரிமையாளர் அணுகல்",
+      downloadData: "💾 தரவை பதிவிறக்கவும்",
+      addMemberTitle: "உறுப்பினரை சேர்க்கவும்",
+      fullName: "முழுப் பெயர்",
+      birthday: "பிறந்தநாள்",
+      sex: "பாலினம்",
+      select: "-- தேர்ந்தெடுக்கவும் --",
+      male: "ஆண் ♂️",
+      female: "பெண் ♀️",
+      other: "மற்றவை ⚧️",
+      familyMembers: "குடும்ப உறுப்பினர்கள் (ஒரு வரியில் ஒன்று, வடிவம்: பெயர் - உறவு)",
+      saveLocal: "💾 உள்ளூரில் சேமிக்கவும் (பரிந்துரைக்கப்படுகிறது)",
+      copyClipboard: "📋 கிளிப்போர்டுக்கு நகலெடுக்கவும்",
+      password: "கடவுச்சொல்",
+      unlock: "🔓 உரிமையாளர் அம்சங்களை திறக்கவும்",
+      saved: name => `✅ "${name}" வெற்றிகரமாக சேமிக்கப்பட்டது!`,
+      copied: "📋 உறுப்பினர் தரவு நகலெடுக்கப்பட்டது!",
+      copyFail: "❌ நகலெடுக்க முடியவில்லை",
+      noData: "📝 தரவு இல்லை.",
+      downloaded: count => `💾 ${count} உறுப்பினர் பதிவுகள் பதிவிறக்கப்பட்டது!`,
+      accessGranted: "🔓 உரிமையாளர் அணுகல் வழங்கப்பட்டது!",
+      accessDenied: "❌ தவறான கடவுச்சொல்.",
+      revoked: "🔒 உரிமையாளர் அணுகல் நீக்கப்பட்டது.",
+      loaded: count => `📊 உள்ளூர் சேமிப்பிலிருந்து ${count} உறுப்பினர்(கள்) ஏற்றப்பட்டது.`
+    }
+  };
+
+  let currentLang = "en";
+
+  function setLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem("language", lang);
+    applyTranslations(lang);
+  }
+
+  function applyTranslations(lang) {
+    const t = translations[lang] || translations["en"];
+    document.getElementById("title").textContent = t.title;
+    document.getElementById("addMemberBtn").textContent = t.addMember;
+    document.getElementById("viewMembersBtn").textContent = t.viewMembers;
+    document.getElementById("ownerLoginBtn").textContent = t.ownerAccess;
+    document.getElementById("downloadBtn").textContent = t.downloadData;
+    document.getElementById("addMemberTitle").textContent = t.addMemberTitle;
+    document.getElementById("labelName").textContent = t.fullName;
+    document.getElementById("labelBirthday").textContent = t.birthday;
+    document.getElementById("labelSex").textContent = t.sex;
+    document.querySelector("#sex option[value='']").textContent = t.select;
+    document.querySelector("#sex option[value='Male']").textContent = t.male;
+    document.querySelector("#sex option[value='Female']").textContent = t.female;
+    document.querySelector("#sex option[value='Other']").textContent = t.other;
+    document.getElementById("labelFamily").textContent = t.familyMembers;
+    document.getElementById("saveLocalBtn").textContent = t.saveLocal;
+    document.getElementById("copyClipboardBtn").textContent = t.copyClipboard;
+    document.getElementById("labelPassword").textContent = t.password;
+    document.getElementById("unlockBtn").textContent = t.unlock;
+  }
+
   function loadData() {
     const saved = localStorage.getItem('memberData');
     if (saved) memberData = JSON.parse(saved);
@@ -152,8 +280,7 @@
 
   // Show & Hide Modal
   function openForm() {
-    const modal = document.getElementById("formModal");
-    modal.classList.remove("hidden");
+    document.getElementById("formModal").classList.remove("hidden");
   }
   function closeForm() {
     document.getElementById("formModal").classList.add("hidden");
@@ -178,7 +305,7 @@
     };
     memberData.push(formData);
     saveData();
-    showStatus(`✅ Member "${formData.name}" saved successfully!`);
+    showStatus(translations[currentLang].saved(formData.name));
     document.getElementById("memberForm").reset();
     closeForm();
   });
@@ -192,15 +319,15 @@
     };
     const text = `Name: ${formData.name}\nBirthday: ${formData.birthday}\nSex: ${formData.sex}\nFamily Members:\n${formData.family}`;
     navigator.clipboard.writeText(text).then(() => {
-      showStatus("📋 Member data copied to clipboard!");
+      showStatus(translations[currentLang].copied);
     }).catch(() => {
-      showStatus("❌ Failed to copy", false);
+      showStatus(translations[currentLang].copyFail, false);
     });
   }
 
   function downloadSubmissions() {
-    if (!isOwner) return showStatus("❌ Owner login required.", false);
-    if (memberData.length === 0) return showStatus("📝 No data to download.", false);
+    if (!isOwner) return showStatus(translations[currentLang].accessDenied, false);
+    if (memberData.length === 0) return showStatus(translations[currentLang].noData, false);
     const dataStr = JSON.stringify(memberData, null, 2);
     const blob = new Blob([dataStr], {type: 'application/json'});
     const url = URL.createObjectURL(blob);
@@ -208,7 +335,7 @@
     a.href = url; a.download = `member_data_${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    showStatus(`💾 Downloaded ${memberData.length} member records!`);
+    showStatus(translations[currentLang].downloaded(memberData.length));
   }
 
   function showOwnerLogin() {
@@ -226,10 +353,10 @@
       isOwner = true;
       localStorage.setItem('ownerAccess', 'true');
       showOwnerFeatures();
-      showStatus("🔓 Owner access granted!");
+      showStatus(translations[currentLang].accessGranted);
       closeOwnerLogin();
     } else {
-      showStatus("❌ Incorrect password.", false);
+      showStatus(translations[currentLang].accessDenied, false);
     }
   });
 
@@ -250,14 +377,20 @@
     isOwner = false;
     localStorage.removeItem('ownerAccess');
     hideOwnerFeatures();
-    showStatus("🔒 Owner access revoked.");
+    showStatus(translations[currentLang].revoked);
   }
 
   window.addEventListener('load', function() {
     loadData();
     checkOwnerStatus();
+
+    const savedLang = localStorage.getItem("language") || "en";
+    currentLang = savedLang;
+    document.getElementById("languageSwitcher").value = savedLang;
+    applyTranslations(savedLang);
+
     if (memberData.length > 0) {
-      showStatus(`📊 ${memberData.length} member(s) loaded from local storage.`);
+      showStatus(translations[currentLang].loaded(memberData.length));
     }
   });
 </script>
