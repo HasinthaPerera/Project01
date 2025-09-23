@@ -42,7 +42,7 @@
 
   <!-- Main Section -->
   <div class="min-h-screen flex flex-col items-center justify-center -mt-20 text-center">
-    <h1 id="mainTitle" class="text-4xl font-extrabold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent animate-pulse">
+    <h1 id="mainTitle" class="text-6xl font-extrabold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent animate-pulse drop-shadow-lg">
       Member Management System
     </h1>
     
@@ -151,7 +151,7 @@
       fullName: "සම්පූර්ණ නම",
       birthday: "උපන්දිනය",
       sex: "ස්ත්‍රී/පුරුෂ භාවය",
-      familyMembers: "කുടుంబ සාමාජිකයින් (ඒක පෙළකට එකක්)",
+      familyMembers: "කുടുംബ සාමාජිකයින් (ඒක පෙළකට එකක්)",
       saveLocal: "ස්ථානිකව සුරකින්න (යෝජිතය)",
       copyClipboard: "පුවරුට පිටපත් කරන්න"
     },
@@ -283,9 +283,7 @@
     loadData();
     checkOwnerStatus();
     setLanguage('en'); // default language
-    if (memberData.length > 0) {
-      showStatus(`📊 ${memberData.length} member(s) loaded from local storage.`);
-    }
+
   });
 
   function openForm() { document.getElementById("formModal").classList.remove("hidden"); }
