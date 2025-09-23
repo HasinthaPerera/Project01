@@ -27,7 +27,7 @@
       <button onclick="setLanguage('ta')" class="px-3 py-1 bg-pink-600 hover:bg-pink-700 rounded-lg text-sm shadow">தமிழ்</button>
     </div>
 
-    <!-- Owner Access -->
+    <!-- Owner Access + Download + Logout -->
     <div>
       <button id="ownerLoginBtn" onclick="showOwnerLogin()" 
         class="px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-xl shadow-lg animate-pulse transform hover:scale-105 transition">
@@ -36,6 +36,10 @@
       <button id="downloadBtn" onclick="downloadSubmissions()" 
         class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-2">
         💾 <span data-i18n="downloadData">Download Data</span>
+      </button>
+      <button id="logoutBtn" onclick="logoutOwner()" 
+        class="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-2">
+        🚪 <span data-i18n="logout">Logout</span>
       </button>
     </div>
   </div>
@@ -133,6 +137,7 @@
       viewMembers: "View All Members",
       password: "Password",
       unlockFeatures: "Unlock Owner Features",
+      logout: "Logout",
       fullName: "Full Name",
       birthday: "Birthday",
       sex: "Sex",
@@ -148,6 +153,7 @@
       viewMembers: "සියලු සාමාජිකයින් බලන්න",
       password: "මුරපදය",
       unlockFeatures: "අයිතිකරුගේ විශේෂාංග අගුලු හරින්න",
+      logout: "නික්ම යන්න",
       fullName: "සම්පූර්ණ නම",
       birthday: "උපන්දිනය",
       sex: "ස්ත්‍රී/පුරුෂ භාවය",
@@ -163,6 +169,7 @@
       viewMembers: "அனைத்து உறுப்பினர்களையும் காண்க",
       password: "கடவுச்சொல்",
       unlockFeatures: "உரிமையாளர் அம்சங்களைத் திறக்கவும்",
+      logout: "வெளியேறு",
       fullName: "முழு பெயர்",
       birthday: "பிறந்தநாள்",
       sex: "பாலினம்",
@@ -267,10 +274,12 @@
 
   function showOwnerFeatures() {
     document.getElementById("downloadBtn").classList.remove("hidden");
+    document.getElementById("logoutBtn").classList.remove("hidden");
     document.getElementById("ownerLoginBtn").classList.add("hidden");
   }
   function hideOwnerFeatures() {
     document.getElementById("downloadBtn").classList.add("hidden");
+    document.getElementById("logoutBtn").classList.add("hidden");
     document.getElementById("ownerLoginBtn").classList.remove("hidden");
   }
   function checkOwnerStatus() {
@@ -279,11 +288,17 @@
     } else hideOwnerFeatures();
   }
 
+  function logoutOwner() {
+    isOwner = false;
+    localStorage.removeItem('ownerAccess');
+    hideOwnerFeatures();
+    showStatus("🚪 Logged out successfully!");
+  }
+
   window.addEventListener('load', function() {
     loadData();
     checkOwnerStatus();
     setLanguage('en'); // default language
-
   });
 
   function openForm() { document.getElementById("formModal").classList.remove("hidden"); }
