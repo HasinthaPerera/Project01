@@ -11,20 +11,26 @@
       100% { opacity: 1; transform: scale(1); }
     }
     @keyframes slideDownFade {
-      0% { opacity: 0; transform: translateY(-10px); }
+      0% { opacity: 0; transform: translateY(-15px); }
       100% { opacity: 1; transform: translateY(0); }
     }
+    @keyframes glowPulse {
+  0%, 100% { text-shadow: 0 0 2px #60a5fa, 0 0 4px #9333ea; }
+  50% { text-shadow: 0 0 3px #3b82f6, 0 0 6px #a855f7; }
+}
+
+
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen">
 
   <!-- Top Bar -->
-  <div class="flex justify-between items-center p-4">
+  <div class="flex justify-between items-center p-4 animate-[slideDownFade_0.6s_ease]">
     <!-- Language Switch -->
     <div class="space-x-2">
-      <button onclick="setLanguage('en')" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm shadow">EN</button>
-      <button onclick="setLanguage('si')" class="px-3 py-1 bg-green-600 hover:bg-green-700 rounded-lg text-sm shadow">සිං</button>
-      <button onclick="setLanguage('ta')" class="px-3 py-1 bg-pink-600 hover:bg-pink-700 rounded-lg text-sm shadow">தமிழ்</button>
+      <button onclick="setLanguage('en')" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm shadow transition transform hover:scale-110">EN</button>
+      <button onclick="setLanguage('si')" class="px-3 py-1 bg-green-600 hover:bg-green-700 rounded-lg text-sm shadow transition transform hover:scale-110">සිං</button>
+      <button onclick="setLanguage('ta')" class="px-3 py-1 bg-pink-600 hover:bg-pink-700 rounded-lg text-sm shadow transition transform hover:scale-110">தமிழ்</button>
     </div>
 
     <!-- Owner Access + Download + Logout -->
@@ -37,7 +43,7 @@
         class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-2">
         💾 <span data-i18n="downloadData">Download Data</span>
       </button>
-      <button id="logoutBtn" onclick="logoutOwner()" 
+      <button id="logoutBtn" onclick="showLogoutConfirm()" 
         class="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-2">
         🚪 <span data-i18n="logout">Logout</span>
       </button>
@@ -46,17 +52,17 @@
 
   <!-- Main Section -->
   <div class="min-h-screen flex flex-col items-center justify-center -mt-20 text-center">
-    <h1 id="mainTitle" class="text-6xl font-extrabold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent animate-pulse drop-shadow-lg">
+    <h1 id="mainTitle" class="text-6xl font-extrabold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent animate-[glowPulse_3s_infinite] drop-shadow-lg">
       Member Management System
     </h1>
     
     <div class="space-x-4 mb-6">
       <button onclick="openForm()" 
-        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg transform hover:scale-105 transition">
+        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg transform hover:scale-110 transition duration-300">
         ➕ <span data-i18n="addMember">Add New Member</span>
       </button>
       <button onclick="window.open('https://docs.google.com/spreadsheets/d/14a39saiscm07b_0uXkm4ShB5NysLfS-RWPNoanLUppU/edit?gid=0#gid=0','_blank')" 
-        class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl shadow-lg transform hover:scale-105 transition">
+        class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl shadow-lg transform hover:scale-110 transition duration-300">
         📄 <span data-i18n="viewMembers">View All Members</span>
       </button>
     </div>
@@ -82,6 +88,24 @@
     </div>
   </div>
 
+  <!-- Logout Confirm Modal -->
+  <div id="logoutModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
+    <div class="bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-sm relative mx-4 animate-[fadeInScale_0.3s_ease]">
+      <button onclick="closeLogoutConfirm()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-2xl">&times;</button>
+      <h2 class="text-2xl font-semibold mb-6 text-center">🚪 <span data-i18n="logout">Logout</span></h2>
+      <form id="logoutForm" class="space-y-4">
+        <div>
+          <label for="logoutPassword" class="block text-gray-200 font-medium mb-1" data-i18n="password">Password</label>
+          <input type="password" id="logoutPassword" required placeholder="Re-enter owner password"
+            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-red-500 transition">
+        </div>
+        <button type="submit" class="w-full py-3 bg-red-500 hover:bg-red-600 rounded-xl font-semibold transform hover:scale-105 transition">
+          ✅ <span data-i18n="confirmLogout">Confirm Logout</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- Add Member Modal -->
   <div id="formModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
     <div class="bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-lg relative mx-4 animate-[fadeInScale_0.3s_ease]">
@@ -100,9 +124,9 @@
           <label for="sex" class="block text-gray-200 font-medium mb-1" data-i18n="sex">Sex</label>
           <select id="sex" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-purple-500 transition">
             <option value="">-- Select --</option>
-            <option value="Male">Male ♂️</option>
-            <option value="Female">Female ♀️</option>
-            <option value="Other">Other ⚧️</option>
+            <option value="Male">Male </option>
+            <option value="Female">Female </option>
+            <option value="Other">Other </option>
           </select>
         </div>
         <div>
@@ -138,6 +162,7 @@
       password: "Password",
       unlockFeatures: "Unlock Owner Features",
       logout: "Logout",
+      confirmLogout: "Confirm Logout",
       fullName: "Full Name",
       birthday: "Birthday",
       sex: "Sex",
@@ -154,10 +179,11 @@
       password: "මුරපදය",
       unlockFeatures: "අයිතිකරුගේ විශේෂාංග අගුලු හරින්න",
       logout: "නික්ම යන්න",
+      confirmLogout: "නික්ම යාම තහවුරු කරන්න",
       fullName: "සම්පූර්ණ නම",
       birthday: "උපන්දිනය",
       sex: "ස්ත්‍රී/පුරුෂ භාවය",
-      familyMembers: "කുടുംബ සාමාජිකයින් (ඒක පෙළකට එකක්)",
+      familyMembers: "පවුලේ සාමාජිකයින් (ඒක පෙළකට එකක්)",
       saveLocal: "ස්ථානිකව සුරකින්න (යෝජිතය)",
       copyClipboard: "පුවරුට පිටපත් කරන්න"
     },
@@ -170,6 +196,7 @@
       password: "கடவுச்சொல்",
       unlockFeatures: "உரிமையாளர் அம்சங்களைத் திறக்கவும்",
       logout: "வெளியேறு",
+      confirmLogout: "வெளியேற்றத்தை உறுதிப்படுத்தவும்",
       fullName: "முழு பெயர்",
       birthday: "பிறந்தநாள்",
       sex: "பாலினம்",
@@ -187,7 +214,6 @@
     });
   }
 
-  // Local storage
   function loadData() {
     const saved = localStorage.getItem('memberData');
     if (saved) memberData = JSON.parse(saved);
@@ -196,7 +222,6 @@
     localStorage.setItem('memberData', JSON.stringify(memberData));
   }
 
-  // Status messages
   function showStatus(message, isSuccess = true) {
     const statusDiv = document.getElementById('statusDisplay');
     statusDiv.className = `mb-4 p-4 rounded-xl max-w-2xl w-full mx-4 animate-[slideDownFade_0.5s_ease] ${isSuccess ? 'bg-green-600' : 'bg-red-600'}`;
@@ -205,7 +230,6 @@
     setTimeout(() => statusDiv.classList.add('hidden'), 5000);
   }
 
-  // Form submit
   document.getElementById("memberForm").addEventListener("submit", function(event) {
     event.preventDefault();
     const formData = {
@@ -284,26 +308,38 @@
   }
   function checkOwnerStatus() {
     if (localStorage.getItem('ownerAccess') === 'true') {
-      isOwner = true; showOwnerFeatures();
-    } else hideOwnerFeatures();
+      isOwner = true;
+      showOwnerFeatures();
+    }
   }
 
-  function logoutOwner() {
-    isOwner = false;
-    localStorage.removeItem('ownerAccess');
-    hideOwnerFeatures();
-    showStatus("🚪 Logged out successfully!");
+  function showLogoutConfirm() {
+    document.getElementById("logoutModal").classList.remove("hidden");
+  }
+  function closeLogoutConfirm() {
+    document.getElementById("logoutModal").classList.add("hidden");
+    document.getElementById("logoutPassword").value = "";
   }
 
-  window.addEventListener('load', function() {
-    loadData();
-    checkOwnerStatus();
-    setLanguage('en'); // default language
+  document.getElementById("logoutForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+    const password = document.getElementById("logoutPassword").value;
+    if (password === OWNER_PASSWORD) {
+      isOwner = false;
+      localStorage.removeItem('ownerAccess');
+      hideOwnerFeatures();
+      showStatus("✅ Logged out successfully.");
+      closeLogoutConfirm();
+    } else {
+      showStatus("❌ Incorrect password.", false);
+    }
   });
 
   function openForm() { document.getElementById("formModal").classList.remove("hidden"); }
   function closeForm() { document.getElementById("formModal").classList.add("hidden"); }
-</script>
 
+  loadData();
+  checkOwnerStatus();
+</script>
 </body>
 </html>
