@@ -47,6 +47,10 @@
         class="px-6 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-2">
         📕 <span>Download PDF</span>
       </button>
+      <button id="clearDataBtn" onclick="clearData()" 
+        class="px-6 py-2 bg-red-700 hover:bg-red-800 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-2">
+        🗑️ <span>Clear All Data</span>
+      </button>
       <button id="logoutBtn" onclick="showLogoutConfirm()" 
         class="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-2">
         🚪 <span data-i18n="logout">Logout</span>
@@ -241,89 +245,87 @@
     a.href = url; a.download = `member_data_${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    showStatus(`💾 Downloaded ${memberData.length} member records!`);
   }
 
-  async function downloadPDF() {
+  function downloadPDF() {
     if (!isOwner) return showStatus("❌ Owner login required.", false);
     if (memberData.length === 0) return showStatus("📝 No data to download.", false);
-
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text("📋 Member Data Report", 14, 20);
+    doc.setFontSize(16); doc.text("Member Data", 10, 10);
     doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-
-    let y = 30;
+    let y = 20;
     memberData.forEach((m, i) => {
-      doc.text(`${i+1}. ${m.name}`, 14, y);
-      doc.text(`🎂 Birthday: ${m.birthday}`, 14, y+6);
-      doc.text(`⚧ Sex: ${m.sex}`, 14, y+12);
-      const family = m.family.split("\n").filter(Boolean);
-      if (family.length > 0) {
-        doc.text(`👨‍👩‍👧‍👦 Family:`, 14, y+18);
-        family.forEach((f, idx) => {
-          doc.text(`   ${f}`, 14, y+24+(idx*6));
+      doc.text(`${i+1}. ${m.name} (${m.sex}) - ${m.birthday}`, 10, y);
+      y += 7;
+      if (m.family) {
+        doc.text("Family:", 15, y);
+        y += 6;
+        m.family.split("\n").forEach(line => {
+          doc.text(`- ${line}`, 20, y);
+          y += 6;
         });
-        y += 24 + (family.length*6);
-      } else {
-        y += 30;
       }
+      y += 4;
       if (y > 270) { doc.addPage(); y = 20; }
     });
-
-    doc.save(`member_data_${new Date().toISOString().split('T')[0]}.pdf`);
-    showStatus(`📕 PDF downloaded with ${memberData.length} records!`);
+    doc.save("member_data.pdf");
   }
 
-  // Owner login
-  function showOwnerLogin() { document.getElementById("ownerModal").classList.remove("hidden"); }
-  function closeOwnerLogin() { document.getElementById("ownerModal").classList.add("hidden"); }
+  // Clear local storage
+  function clearData() {
+    if (!isOwner) return showStatus("❌ Owner login required.", false);
+    if (!confirm("⚠️ Are you sure you want to clear ALL member data? This cannot be undone.")) return;
+    memberData = [];
+    localStorage.removeItem('memberData');
+    showStatus("🗑️ All member data has been cleared!");
+  }
 
+  // Owner login/logout
   document.getElementById("ownerForm").addEventListener("submit", function(e) {
     e.preventDefault();
-    const pwd = document.getElementById("ownerPassword").value;
-    if (pwd === OWNER_PASSWORD) {
+    const entered = document.getElementById("ownerPassword").value;
+    if (entered === OWNER_PASSWORD) {
       isOwner = true;
+      showStatus("✅ Owner access granted!");
+      document.getElementById("ownerModal").classList.add("hidden");
+      document.getElementById("ownerLoginBtn").classList.add("hidden");
       document.getElementById("downloadBtn").classList.remove("hidden");
       document.getElementById("downloadPdfBtn").classList.remove("hidden");
+      document.getElementById("clearDataBtn").classList.remove("hidden");
       document.getElementById("logoutBtn").classList.remove("hidden");
-      document.getElementById("ownerLoginBtn").classList.add("hidden");
-      closeOwnerLogin();
-      showStatus("✅ Owner features unlocked!");
     } else {
-      showStatus("❌ Incorrect password", false);
+      showStatus("❌ Incorrect password.", false);
     }
   });
-
-  // Logout
-  function showLogoutConfirm() { document.getElementById("logoutModal").classList.remove("hidden"); }
-  function closeLogoutConfirm() { document.getElementById("logoutModal").classList.add("hidden"); }
 
   document.getElementById("logoutForm").addEventListener("submit", function(e) {
     e.preventDefault();
-    const pwd = document.getElementById("logoutPassword").value;
-    if (pwd === OWNER_PASSWORD) {
+    const entered = document.getElementById("logoutPassword").value;
+    if (entered === OWNER_PASSWORD) {
       isOwner = false;
+      showStatus("✅ Logged out successfully!");
+      document.getElementById("logoutModal").classList.add("hidden");
+      document.getElementById("ownerLoginBtn").classList.remove("hidden");
       document.getElementById("downloadBtn").classList.add("hidden");
       document.getElementById("downloadPdfBtn").classList.add("hidden");
+      document.getElementById("clearDataBtn").classList.add("hidden");
       document.getElementById("logoutBtn").classList.add("hidden");
-      document.getElementById("ownerLoginBtn").classList.remove("hidden");
-      closeLogoutConfirm();
-      showStatus("✅ Logged out successfully!");
     } else {
-      showStatus("❌ Incorrect password", false);
+      showStatus("❌ Incorrect password.", false);
     }
   });
 
-  // Form modal
-  function openForm() { document.getElementById("formModal").classList.remove("hidden"); }
-  function closeForm() { document.getElementById("formModal").classList.add("hidden"); }
+  // Modal controls
+  function showOwnerLogin(){ document.getElementById("ownerModal").classList.remove("hidden"); }
+  function closeOwnerLogin(){ document.getElementById("ownerModal").classList.add("hidden"); }
+  function openForm(){ document.getElementById("formModal").classList.remove("hidden"); }
+  function closeForm(){ document.getElementById("formModal").classList.add("hidden"); }
+  function showLogoutConfirm(){ document.getElementById("logoutModal").classList.remove("hidden"); }
+  function closeLogoutConfirm(){ document.getElementById("logoutModal").classList.add("hidden"); }
 
-  loadData();
+  loadData(); setLanguage("en");
 </script>
+
 </body>
 </html>
