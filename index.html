@@ -5,35 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Member Management System</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- PDF Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     @keyframes fadeInScale {
       0% { opacity: 0; transform: scale(0.9); }
       100% { opacity: 1; transform: scale(1); }
     }
     @keyframes slideDownFade {
-      0% { opacity: 0; transform: translateY(-15px); }
+      0% { opacity: 0; transform: translateY(-10px); }
       100% { opacity: 1; transform: translateY(0); }
     }
     @keyframes glowPulse {
-  0%, 100% { text-shadow: 0 0 2px #60a5fa, 0 0 4px #9333ea; }
-  50% { text-shadow: 0 0 3px #3b82f6, 0 0 6px #a855f7; }
-}
-
-
+      0%, 100% { text-shadow: 0 0 2px #60a5fa, 0 0 4px #9333ea; }
+      50% { text-shadow: 0 0 3px #3b82f6, 0 0 6px #a855f7; }
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen">
 
   <!-- Top Bar -->
-  <div class="flex justify-between items-center p-4 animate-[slideDownFade_0.6s_ease]">
+  <div class="flex justify-between items-center p-4">
     <!-- Language Switch -->
     <div class="space-x-2">
-      <button onclick="setLanguage('en')" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm shadow transition transform hover:scale-110">EN</button>
-      <button onclick="setLanguage('si')" class="px-3 py-1 bg-green-600 hover:bg-green-700 rounded-lg text-sm shadow transition transform hover:scale-110">සිං</button>
-      <button onclick="setLanguage('ta')" class="px-3 py-1 bg-pink-600 hover:bg-pink-700 rounded-lg text-sm shadow transition transform hover:scale-110">தமிழ்</button>
+      <button onclick="setLanguage('en')" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm shadow">EN</button>
+      <button onclick="setLanguage('si')" class="px-3 py-1 bg-green-600 hover:bg-green-700 rounded-lg text-sm shadow">සිං</button>
+      <button onclick="setLanguage('ta')" class="px-3 py-1 bg-pink-600 hover:bg-pink-700 rounded-lg text-sm shadow">தமிழ்</button>
     </div>
 
-    <!-- Owner Access + Download + Logout -->
+    <!-- Owner Access -->
     <div>
       <button id="ownerLoginBtn" onclick="showOwnerLogin()" 
         class="px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-xl shadow-lg animate-pulse transform hover:scale-105 transition">
@@ -41,7 +41,11 @@
       </button>
       <button id="downloadBtn" onclick="downloadSubmissions()" 
         class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-2">
-        💾 <span data-i18n="downloadData">Download Data</span>
+        💾 <span data-i18n="downloadData">Download JSON</span>
+      </button>
+      <button id="downloadPdfBtn" onclick="downloadPDF()" 
+        class="px-6 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-2">
+        📕 <span>Download PDF</span>
       </button>
       <button id="logoutBtn" onclick="showLogoutConfirm()" 
         class="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-2">
@@ -52,17 +56,17 @@
 
   <!-- Main Section -->
   <div class="min-h-screen flex flex-col items-center justify-center -mt-20 text-center">
-    <h1 id="mainTitle" class="text-6xl font-extrabold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent animate-[glowPulse_3s_infinite] drop-shadow-lg">
+    <h1 id="mainTitle" class="text-6xl font-extrabold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent animate-[glowPulse_2s_infinite] drop-shadow-lg">
       Member Management System
     </h1>
     
     <div class="space-x-4 mb-6">
       <button onclick="openForm()" 
-        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg transform hover:scale-110 transition duration-300">
+        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg transform hover:scale-110 transition">
         ➕ <span data-i18n="addMember">Add New Member</span>
       </button>
       <button onclick="window.open('https://docs.google.com/spreadsheets/d/14a39saiscm07b_0uXkm4ShB5NysLfS-RWPNoanLUppU/edit?gid=0#gid=0','_blank')" 
-        class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl shadow-lg transform hover:scale-110 transition duration-300">
+        class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl shadow-lg transform hover:scale-110 transition">
         📄 <span data-i18n="viewMembers">View All Members</span>
       </button>
     </div>
@@ -88,19 +92,19 @@
     </div>
   </div>
 
-  <!-- Logout Confirm Modal -->
+  <!-- Logout Confirmation Modal -->
   <div id="logoutModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
     <div class="bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-sm relative mx-4 animate-[fadeInScale_0.3s_ease]">
       <button onclick="closeLogoutConfirm()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-2xl">&times;</button>
-      <h2 class="text-2xl font-semibold mb-6 text-center">🚪 <span data-i18n="logout">Logout</span></h2>
+      <h2 class="text-2xl font-semibold mb-6 text-center">🚪 <span data-i18n="logoutConfirm">Confirm Logout</span></h2>
       <form id="logoutForm" class="space-y-4">
         <div>
           <label for="logoutPassword" class="block text-gray-200 font-medium mb-1" data-i18n="password">Password</label>
-          <input type="password" id="logoutPassword" required placeholder="Re-enter owner password"
+          <input type="password" id="logoutPassword" required placeholder="Enter password to logout"
             class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-red-500 transition">
         </div>
         <button type="submit" class="w-full py-3 bg-red-500 hover:bg-red-600 rounded-xl font-semibold transform hover:scale-105 transition">
-          ✅ <span data-i18n="confirmLogout">Confirm Logout</span>
+          ✅ <span data-i18n="logout">Logout</span>
         </button>
       </form>
     </div>
@@ -124,9 +128,9 @@
           <label for="sex" class="block text-gray-200 font-medium mb-1" data-i18n="sex">Sex</label>
           <select id="sex" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-purple-500 transition">
             <option value="">-- Select --</option>
-            <option value="Male">Male </option>
-            <option value="Female">Female </option>
-            <option value="Other">Other </option>
+            <option value="Male">Male ♂️</option>
+            <option value="Female">Female ♀️</option>
+            <option value="Other">Other ⚧️</option>
           </select>
         </div>
         <div>
@@ -156,53 +160,53 @@
     en: {
       title: "Member Management System",
       ownerAccess: "Owner Access",
-      downloadData: "Download Data",
+      downloadData: "Download JSON",
       addMember: "Add New Member",
       viewMembers: "View All Members",
       password: "Password",
       unlockFeatures: "Unlock Owner Features",
-      logout: "Logout",
-      confirmLogout: "Confirm Logout",
       fullName: "Full Name",
       birthday: "Birthday",
       sex: "Sex",
       familyMembers: "Family Members (one per line, format: Name - Relation)",
       saveLocal: "Save Locally (Recommended)",
-      copyClipboard: "Copy to Clipboard"
+      copyClipboard: "Copy to Clipboard",
+      logout: "Logout",
+      logoutConfirm: "Confirm Logout"
     },
     si: {
       title: "සාමාජික කළමනාකරණ පද්ධතිය",
       ownerAccess: "අයිතිකරු පිවිසුම",
-      downloadData: "දත්ත බාගන්න",
+      downloadData: "JSON බාගන්න",
       addMember: "නව සාමාජිකයෙකු එකතු කරන්න",
       viewMembers: "සියලු සාමාජිකයින් බලන්න",
       password: "මුරපදය",
       unlockFeatures: "අයිතිකරුගේ විශේෂාංග අගුලු හරින්න",
-      logout: "නික්ම යන්න",
-      confirmLogout: "නික්ම යාම තහවුරු කරන්න",
       fullName: "සම්පූර්ණ නම",
       birthday: "උපන්දිනය",
       sex: "ස්ත්‍රී/පුරුෂ භාවය",
-      familyMembers: "පවුලේ සාමාජිකයින් (ඒක පෙළකට එකක්)",
+      familyMembers: "කുടുംബ සාමාජිකයින් (ඒක පෙළකට එකක්)",
       saveLocal: "ස්ථානිකව සුරකින්න (යෝජිතය)",
-      copyClipboard: "පුවරුට පිටපත් කරන්න"
+      copyClipboard: "පුවරුට පිටපත් කරන්න",
+      logout: "පිටවන්න",
+      logoutConfirm: "පිටවීම තහවුරු කරන්න"
     },
     ta: {
       title: "உறுப்பினர் மேலாண்மை அமைப்பு",
       ownerAccess: "உரிமையாளர் அணுகல்",
-      downloadData: "தரவு பதிவிறக்கவும்",
+      downloadData: "JSON பதிவிறக்கவும்",
       addMember: "புதிய உறுப்பினரைச் சேர்க்கவும்",
       viewMembers: "அனைத்து உறுப்பினர்களையும் காண்க",
       password: "கடவுச்சொல்",
       unlockFeatures: "உரிமையாளர் அம்சங்களைத் திறக்கவும்",
-      logout: "வெளியேறு",
-      confirmLogout: "வெளியேற்றத்தை உறுதிப்படுத்தவும்",
       fullName: "முழு பெயர்",
       birthday: "பிறந்தநாள்",
       sex: "பாலினம்",
       familyMembers: "குடும்ப உறுப்பினர்கள் (ஒன்றுக்கு ஒரு வரி)",
       saveLocal: "உள்ளூர் சேமிக்கவும் (பரிந்துரைக்கப்படுகிறது)",
-      copyClipboard: "கிளிப்போர்டுக்கு நகலெடுக்கவும்"
+      copyClipboard: "கிளிப்போர்டுக்கு நகலெடுக்கவும்",
+      logout: "வெளியேறு",
+      logoutConfirm: "வெளியேறுதல் உறுதிசெய்"
     }
   };
 
@@ -210,10 +214,11 @@
     document.getElementById("mainTitle").textContent = translations[lang].title;
     document.querySelectorAll("[data-i18n]").forEach(el => {
       const key = el.getAttribute("data-i18n");
-      el.textContent = translations[lang][key];
+      if (translations[lang][key]) el.textContent = translations[lang][key];
     });
   }
 
+  // Local storage
   function loadData() {
     const saved = localStorage.getItem('memberData');
     if (saved) memberData = JSON.parse(saved);
@@ -222,6 +227,7 @@
     localStorage.setItem('memberData', JSON.stringify(memberData));
   }
 
+  // Status messages
   function showStatus(message, isSuccess = true) {
     const statusDiv = document.getElementById('statusDisplay');
     statusDiv.className = `mb-4 p-4 rounded-xl max-w-2xl w-full mx-4 animate-[slideDownFade_0.5s_ease] ${isSuccess ? 'bg-green-600' : 'bg-red-600'}`;
@@ -230,6 +236,7 @@
     setTimeout(() => statusDiv.classList.add('hidden'), 5000);
   }
 
+  // Form submit
   document.getElementById("memberForm").addEventListener("submit", function(event) {
     event.preventDefault();
     const formData = {
@@ -274,72 +281,86 @@
     showStatus(`💾 Downloaded ${memberData.length} member records!`);
   }
 
-  function showOwnerLogin() {
-    document.getElementById("ownerModal").classList.remove("hidden");
-  }
-  function closeOwnerLogin() {
-    document.getElementById("ownerModal").classList.add("hidden");
-    document.getElementById("ownerPassword").value = "";
+  async function downloadPDF() {
+    if (!isOwner) return showStatus("❌ Owner login required.", false);
+    if (memberData.length === 0) return showStatus("📝 No data to download.", false);
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("Member Management System", 14, 20);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+
+    let y = 35;
+    memberData.forEach((m, i) => {
+      doc.text(`${i+1}. ${m.name}`, 14, y);
+      doc.text(`   🎂 ${m.birthday}`, 14, y+6);
+      doc.text(`   ⚧ ${m.sex}`, 14, y+12);
+      if (m.family) {
+        const family = m.family.split("\n");
+        family.forEach((f, idx) => {
+          doc.text(`   👨‍👩‍👧‍👦 ${f}`, 14, y+18+(idx*6));
+        });
+        y += 18 + (family.length*6);
+      } else {
+        y += 24;
+      }
+      if (y > 270) { doc.addPage(); y = 20; }
+    });
+
+    doc.save(`member_data_${new Date().toISOString().split('T')[0]}.pdf`);
+    showStatus(`📕 PDF downloaded with ${memberData.length} records!`);
   }
 
-  document.getElementById("ownerForm").addEventListener("submit", function(event) {
-    event.preventDefault();
-    const password = document.getElementById("ownerPassword").value;
-    if (password === OWNER_PASSWORD) {
+  // Owner login
+  function showOwnerLogin() { document.getElementById("ownerModal").classList.remove("hidden"); }
+  function closeOwnerLogin() { document.getElementById("ownerModal").classList.add("hidden"); }
+
+  document.getElementById("ownerForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const pwd = document.getElementById("ownerPassword").value;
+    if (pwd === OWNER_PASSWORD) {
       isOwner = true;
-      localStorage.setItem('ownerAccess', 'true');
-      showOwnerFeatures();
-      showStatus("🔓 Owner access granted!");
+      document.getElementById("downloadBtn").classList.remove("hidden");
+      document.getElementById("downloadPdfBtn").classList.remove("hidden");
+      document.getElementById("logoutBtn").classList.remove("hidden");
+      document.getElementById("ownerLoginBtn").classList.add("hidden");
       closeOwnerLogin();
+      showStatus("✅ Owner features unlocked!");
     } else {
-      showStatus("❌ Incorrect password.", false);
+      showStatus("❌ Incorrect password", false);
     }
   });
 
-  function showOwnerFeatures() {
-    document.getElementById("downloadBtn").classList.remove("hidden");
-    document.getElementById("logoutBtn").classList.remove("hidden");
-    document.getElementById("ownerLoginBtn").classList.add("hidden");
-  }
-  function hideOwnerFeatures() {
-    document.getElementById("downloadBtn").classList.add("hidden");
-    document.getElementById("logoutBtn").classList.add("hidden");
-    document.getElementById("ownerLoginBtn").classList.remove("hidden");
-  }
-  function checkOwnerStatus() {
-    if (localStorage.getItem('ownerAccess') === 'true') {
-      isOwner = true;
-      showOwnerFeatures();
-    }
-  }
+  // Logout
+  function showLogoutConfirm() { document.getElementById("logoutModal").classList.remove("hidden"); }
+  function closeLogoutConfirm() { document.getElementById("logoutModal").classList.add("hidden"); }
 
-  function showLogoutConfirm() {
-    document.getElementById("logoutModal").classList.remove("hidden");
-  }
-  function closeLogoutConfirm() {
-    document.getElementById("logoutModal").classList.add("hidden");
-    document.getElementById("logoutPassword").value = "";
-  }
-
-  document.getElementById("logoutForm").addEventListener("submit", function(event) {
-    event.preventDefault();
-    const password = document.getElementById("logoutPassword").value;
-    if (password === OWNER_PASSWORD) {
+  document.getElementById("logoutForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const pwd = document.getElementById("logoutPassword").value;
+    if (pwd === OWNER_PASSWORD) {
       isOwner = false;
-      localStorage.removeItem('ownerAccess');
-      hideOwnerFeatures();
-      showStatus("✅ Logged out successfully.");
+      document.getElementById("downloadBtn").classList.add("hidden");
+      document.getElementById("downloadPdfBtn").classList.add("hidden");
+      document.getElementById("logoutBtn").classList.add("hidden");
+      document.getElementById("ownerLoginBtn").classList.remove("hidden");
       closeLogoutConfirm();
+      showStatus("✅ Logged out successfully!");
     } else {
-      showStatus("❌ Incorrect password.", false);
+      showStatus("❌ Incorrect password", false);
     }
   });
 
+  // Form modal
   function openForm() { document.getElementById("formModal").classList.remove("hidden"); }
   function closeForm() { document.getElementById("formModal").classList.add("hidden"); }
 
   loadData();
-  checkOwnerStatus();
 </script>
 </body>
 </html>
