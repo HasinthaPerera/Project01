@@ -71,6 +71,22 @@
       </button>
     </div>
     
+    <!-- Terms & Conditions PDFs -->
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+      <a href="terms1.pdf" target="_blank" 
+        class="block px-6 py-4 bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-lg transform hover:scale-105 transition text-lg font-semibold">
+        📜 Committee Terms (Part 1)
+      </a>
+      <a href="terms2.pdf" target="_blank" 
+        class="block px-6 py-4 bg-teal-600 hover:bg-teal-700 rounded-xl shadow-lg transform hover:scale-105 transition text-lg font-semibold">
+        📜 Committee Terms (Part 2)
+      </a>
+      <a href="terms3.pdf" target="_blank" 
+        class="block px-6 py-4 bg-rose-600 hover:bg-rose-700 rounded-xl shadow-lg transform hover:scale-105 transition text-lg font-semibold">
+        📜 Committee Terms (Part 3)
+      </a>
+    </div>
+
     <div id="statusDisplay" class="hidden mb-4 p-4 rounded-xl max-w-2xl w-full mx-4 animate-[slideDownFade_0.5s_ease]"></div>
   </div>
 
@@ -157,57 +173,9 @@
 
   // Translations
   const translations = {
-    en: {
-      title: "Member Management System",
-      ownerAccess: "Owner Access",
-      downloadData: "Download JSON",
-      addMember: "Add New Member",
-      viewMembers: "View All Members",
-      password: "Password",
-      unlockFeatures: "Unlock Owner Features",
-      fullName: "Full Name",
-      birthday: "Birthday",
-      sex: "Sex",
-      familyMembers: "Family Members (one per line, format: Name - Relation)",
-      saveLocal: "Save Locally (Recommended)",
-      copyClipboard: "Copy to Clipboard",
-      logout: "Logout",
-      logoutConfirm: "Confirm Logout"
-    },
-    si: {
-      title: "සාමාජික කළමනාකරණ පද්ධතිය",
-      ownerAccess: "අයිතිකරු පිවිසුම",
-      downloadData: "JSON බාගන්න",
-      addMember: "නව සාමාජිකයෙකු එකතු කරන්න",
-      viewMembers: "සියලු සාමාජිකයින් බලන්න",
-      password: "මුරපදය",
-      unlockFeatures: "අයිතිකරුගේ විශේෂාංග අගුලු හරින්න",
-      fullName: "සම්පූර්ණ නම",
-      birthday: "උපන්දිනය",
-      sex: "ස්ත්‍රී/පුරුෂ භාවය",
-      familyMembers: "කുടുംബ සාමාජිකයින් (ඒක පෙළකට එකක්)",
-      saveLocal: "ස්ථානිකව සුරකින්න (යෝජිතය)",
-      copyClipboard: "පුවරුට පිටපත් කරන්න",
-      logout: "පිටවන්න",
-      logoutConfirm: "පිටවීම තහවුරු කරන්න"
-    },
-    ta: {
-      title: "உறுப்பினர் மேலாண்மை அமைப்பு",
-      ownerAccess: "உரிமையாளர் அணுகல்",
-      downloadData: "JSON பதிவிறக்கவும்",
-      addMember: "புதிய உறுப்பினரைச் சேர்க்கவும்",
-      viewMembers: "அனைத்து உறுப்பினர்களையும் காண்க",
-      password: "கடவுச்சொல்",
-      unlockFeatures: "உரிமையாளர் அம்சங்களைத் திறக்கவும்",
-      fullName: "முழு பெயர்",
-      birthday: "பிறந்தநாள்",
-      sex: "பாலினம்",
-      familyMembers: "குடும்ப உறுப்பினர்கள் (ஒன்றுக்கு ஒரு வரி)",
-      saveLocal: "உள்ளூர் சேமிக்கவும் (பரிந்துரைக்கப்படுகிறது)",
-      copyClipboard: "கிளிப்போர்டுக்கு நகலெடுக்கவும்",
-      logout: "வெளியேறு",
-      logoutConfirm: "வெளியேறுதல் உறுதிசெய்"
-    }
+    en: { title:"Member Management System",ownerAccess:"Owner Access",downloadData:"Download JSON",addMember:"Add New Member",viewMembers:"View All Members",password:"Password",unlockFeatures:"Unlock Owner Features",fullName:"Full Name",birthday:"Birthday",sex:"Sex",familyMembers:"Family Members (one per line, format: Name - Relation)",saveLocal:"Save Locally (Recommended)",copyClipboard:"Copy to Clipboard",logout:"Logout",logoutConfirm:"Confirm Logout" },
+    si: { title:"සාමාජික කළමනාකරණ පද්ධතිය",ownerAccess:"අයිතිකරු පිවිසුම",downloadData:"JSON බාගන්න",addMember:"නව සාමාජිකයෙකු එකතු කරන්න",viewMembers:"සියලු සාමාජිකයින් බලන්න",password:"මුරපදය",unlockFeatures:"අයිතිකරුගේ විශේෂාංග අගුලු හරින්න",fullName:"සම්පූර්ණ නම",birthday:"උපන්දිනය",sex:"ස්ත්‍රී/පුරුෂ භාවය",familyMembers:"කുടുംബ සාමාජිකයින් (ඒක පෙළකට එකක්)",saveLocal:"ස්ථානිකව සුරකින්න (යෝජිතය)",copyClipboard:"පුවරුට පිටපත් කරන්න",logout:"පිටවන්න",logoutConfirm:"පිටවීම තහවුරු කරන්න" },
+    ta: { title:"உறுப்பினர் மேலாண்மை அமைப்பு",ownerAccess:"உரிமையாளர் அணுகல்",downloadData:"JSON பதிவிறக்கவும்",addMember:"புதிய உறுப்பினரைச் சேர்க்கவும்",viewMembers:"அனைத்து உறுப்பினர்களையும் காண்க",password:"கடவுச்சொல்",unlockFeatures:"உரிமையாளர் அம்சங்களைத் திறக்கவும்",fullName:"முழு பெயர்",birthday:"பிறந்தநாள்",sex:"பாலினம்",familyMembers:"குடும்ப உறுப்பினர்கள் (ஒன்றுக்கு ஒரு வரி)",saveLocal:"உள்ளூர் சேமிக்கவும் (பரிந்துரைக்கப்படுகிறது)",copyClipboard:"கிளிப்போர்டுக்கு நகலெடுக்கவும்",logout:"வெளியேறு",logoutConfirm:"வெளியேறுதல் உறுதிசெய்" }
   };
 
   function setLanguage(lang) {
@@ -219,13 +187,8 @@
   }
 
   // Local storage
-  function loadData() {
-    const saved = localStorage.getItem('memberData');
-    if (saved) memberData = JSON.parse(saved);
-  }
-  function saveData() {
-    localStorage.setItem('memberData', JSON.stringify(memberData));
-  }
+  function loadData() { const saved = localStorage.getItem('memberData'); if (saved) memberData = JSON.parse(saved); }
+  function saveData() { localStorage.setItem('memberData', JSON.stringify(memberData)); }
 
   // Status messages
   function showStatus(message, isSuccess = true) {
@@ -290,24 +253,24 @@
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
-    doc.text("Member Management System", 14, 20);
-
-    doc.setFont("helvetica", "normal");
+    doc.text("📋 Member Data Report", 14, 20);
     doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
 
-    let y = 35;
+    let y = 30;
     memberData.forEach((m, i) => {
       doc.text(`${i+1}. ${m.name}`, 14, y);
-      doc.text(`   🎂 ${m.birthday}`, 14, y+6);
-      doc.text(`   ⚧ ${m.sex}`, 14, y+12);
-      if (m.family) {
-        const family = m.family.split("\n");
+      doc.text(`🎂 Birthday: ${m.birthday}`, 14, y+6);
+      doc.text(`⚧ Sex: ${m.sex}`, 14, y+12);
+      const family = m.family.split("\n").filter(Boolean);
+      if (family.length > 0) {
+        doc.text(`👨‍👩‍👧‍👦 Family:`, 14, y+18);
         family.forEach((f, idx) => {
-          doc.text(`   👨‍👩‍👧‍👦 ${f}`, 14, y+18+(idx*6));
+          doc.text(`   ${f}`, 14, y+24+(idx*6));
         });
-        y += 18 + (family.length*6);
+        y += 24 + (family.length*6);
       } else {
-        y += 24;
+        y += 30;
       }
       if (y > 270) { doc.addPage(); y = 20; }
     });
