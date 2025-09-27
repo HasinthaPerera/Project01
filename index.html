@@ -5,327 +5,241 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Member Management System</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- PDF Library -->
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <style>
-    @keyframes fadeInScale {
-      0% { opacity: 0; transform: scale(0.9); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-    @keyframes slideDownFade {
-      0% { opacity: 0; transform: translateY(-10px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes glowPulse {
-      0%, 100% { text-shadow: 0 0 2px #60a5fa, 0 0 4px #9333ea; }
-      50% { text-shadow: 0 0 3px #3b82f6, 0 0 6px #a855f7; }
-    }
-  </style>
 </head>
-<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen">
+<body class="bg-gray-900 text-white min-h-screen">
 
-  <!-- Top Bar -->
+  <!-- Top bar -->
   <div class="flex justify-between items-center p-4">
-    <!-- Language Switch -->
     <div class="space-x-2">
-      <button onclick="setLanguage('en')" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm shadow">EN</button>
-      <button onclick="setLanguage('si')" class="px-3 py-1 bg-green-600 hover:bg-green-700 rounded-lg text-sm shadow">සිං</button>
-      <button onclick="setLanguage('ta')" class="px-3 py-1 bg-pink-600 hover:bg-pink-700 rounded-lg text-sm shadow">தமிழ்</button>
+      <button onclick="setLanguage('en')" class="px-3 py-1 bg-blue-600 rounded">EN</button>
+      <button onclick="setLanguage('si')" class="px-3 py-1 bg-green-600 rounded">සිං</button>
+      <button onclick="setLanguage('ta')" class="px-3 py-1 bg-pink-600 rounded">தமிழ்</button>
     </div>
-
-    <!-- Owner Access -->
     <div>
-      <button id="ownerLoginBtn" onclick="showOwnerLogin()" 
-        class="px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-xl shadow-lg animate-pulse transform hover:scale-105 transition">
+      <button id="ownerLoginBtn" onclick="showOwnerLogin()" class="px-4 py-2 bg-gray-700 rounded">
         🔐 <span data-i18n="ownerAccess">Owner Access</span>
       </button>
-      <button id="downloadBtn" onclick="downloadSubmissions()" 
-        class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-2">
-        💾 <span data-i18n="downloadData">Download JSON</span>
+      <button id="downloadBtn" onclick="downloadSubmissions()" class="hidden px-4 py-2 bg-purple-600 rounded ml-2">
+        💾 Download JSON
       </button>
-      <button id="downloadPdfBtn" onclick="downloadPDF()" 
-        class="px-6 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-2">
-        📕 <span>Download PDF</span>
+      <button id="downloadPdfBtn" onclick="downloadPDF()" class="hidden px-4 py-2 bg-yellow-600 rounded ml-2">
+        📕 Download PDF
       </button>
-      <button id="clearDataBtn" onclick="clearData()" 
-        class="px-6 py-2 bg-red-700 hover:bg-red-800 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-2">
-        🗑️ <span>Clear All Data</span>
+      <button id="clearDataBtn" onclick="clearData()" class="hidden px-4 py-2 bg-red-700 rounded ml-2">
+        🗑️ Clear Data
       </button>
-      <button id="logoutBtn" onclick="showLogoutConfirm()" 
-        class="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-xl shadow-lg hidden transform hover:scale-105 transition ml-2">
-        🚪 <span data-i18n="logout">Logout</span>
+      <button id="logoutBtn" onclick="logoutOwner()" class="hidden px-4 py-2 bg-red-600 rounded ml-2">
+        🚪 Logout
       </button>
     </div>
   </div>
 
-  <!-- Main Section -->
-  <div class="min-h-screen flex flex-col items-center justify-center -mt-20 text-center">
-    <h1 id="mainTitle" class="text-6xl font-extrabold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent animate-[glowPulse_2s_infinite] drop-shadow-lg">
-      Member Management System
-    </h1>
-    
-    <div class="space-x-4 mb-6">
-      <button onclick="openForm()" 
-        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg transform hover:scale-110 transition">
-        ➕ <span data-i18n="addMember">Add New Member</span>
-      </button>
-      <button onclick="window.open('https://docs.google.com/spreadsheets/d/14a39saiscm07b_0uXkm4ShB5NysLfS-RWPNoanLUppU/edit?gid=0#gid=0','_blank')" 
-        class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded-xl shadow-lg transform hover:scale-110 transition">
-        📄 <span data-i18n="viewMembers">View All Members</span>
-      </button>
-    </div>
-    
-    <!-- Terms & Conditions PDFs -->
-    <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-      <a href="terms1.pdf" target="_blank" 
-        class="block px-6 py-4 bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-lg transform hover:scale-105 transition text-lg font-semibold">
-        📜 Committee Terms (Part 1)
-      </a>
-      <a href="terms2.pdf" target="_blank" 
-        class="block px-6 py-4 bg-teal-600 hover:bg-teal-700 rounded-xl shadow-lg transform hover:scale-105 transition text-lg font-semibold">
-        📜 Committee Terms (Part 2)
-      </a>
-      <a href="terms3.pdf" target="_blank" 
-        class="block px-6 py-4 bg-rose-600 hover:bg-rose-700 rounded-xl shadow-lg transform hover:scale-105 transition text-lg font-semibold">
-        📜 Committee Terms (Part 3)
-      </a>
-    </div>
-
-    <div id="statusDisplay" class="hidden mb-4 p-4 rounded-xl max-w-2xl w-full mx-4 animate-[slideDownFade_0.5s_ease]"></div>
+  <!-- Main -->
+  <div class="flex flex-col items-center justify-center">
+    <h1 data-i18n="title" class="text-5xl font-bold my-6">Member Management System</h1>
+    <button onclick="openForm()" class="px-6 py-3 bg-blue-600 rounded-lg">➕ Add New Member</button>
   </div>
+
+  <!-- Status messages -->
+  <div id="statusDisplay" class="hidden text-center mt-4 p-3 rounded-xl"></div>
 
   <!-- Owner Login Modal -->
-  <div id="ownerModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
-    <div class="bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-sm relative mx-4 animate-[fadeInScale_0.3s_ease]">
-      <button onclick="closeOwnerLogin()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-2xl">&times;</button>
-      <h2 class="text-2xl font-semibold mb-6 text-center">🔐 <span data-i18n="ownerAccess">Owner Access</span></h2>
+  <div id="ownerModal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center">
+    <div class="bg-gray-800 rounded-xl p-6 w-96 relative">
+      <button onclick="closeOwnerLogin()" class="absolute top-3 right-3 text-xl">&times;</button>
+      <h2 class="text-2xl mb-4">Owner Access</h2>
       <form id="ownerForm" class="space-y-4">
-        <div>
-          <label for="ownerPassword" class="block text-gray-200 font-medium mb-1" data-i18n="password">Password</label>
-          <input type="password" id="ownerPassword" required placeholder="Enter owner password"
-            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 transition">
-        </div>
-        <button type="submit" class="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl font-semibold transform hover:scale-105 transition">
-          🔓 <span data-i18n="unlockFeatures">Unlock Owner Features</span>
-        </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Logout Confirmation Modal -->
-  <div id="logoutModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
-    <div class="bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-sm relative mx-4 animate-[fadeInScale_0.3s_ease]">
-      <button onclick="closeLogoutConfirm()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-2xl">&times;</button>
-      <h2 class="text-2xl font-semibold mb-6 text-center">🚪 <span data-i18n="logoutConfirm">Confirm Logout</span></h2>
-      <form id="logoutForm" class="space-y-4">
-        <div>
-          <label for="logoutPassword" class="block text-gray-200 font-medium mb-1" data-i18n="password">Password</label>
-          <input type="password" id="logoutPassword" required placeholder="Enter password to logout"
-            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-red-500 transition">
-        </div>
-        <button type="submit" class="w-full py-3 bg-red-500 hover:bg-red-600 rounded-xl font-semibold transform hover:scale-105 transition">
-          ✅ <span data-i18n="logout">Logout</span>
-        </button>
+        <input type="password" id="ownerPassword" placeholder="Enter password" class="w-full p-2 rounded bg-gray-700 border border-gray-500">
+        <button type="submit" class="w-full py-2 bg-blue-600 rounded">Unlock</button>
       </form>
     </div>
   </div>
 
   <!-- Add Member Modal -->
-  <div id="formModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden">
-    <div class="bg-gray-800 rounded-2xl shadow-lg p-8 w-full max-w-lg relative mx-4 animate-[fadeInScale_0.3s_ease]">
-      <button onclick="closeForm()" class="absolute top-3 right-3 text-gray-400 hover:text-white text-2xl">&times;</button>
-      <h2 class="text-2xl font-semibold mb-6" data-i18n="addMember">Add Member</h2>
+  <div id="formModal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center">
+    <div class="bg-gray-800 rounded-xl p-6 w-full max-w-lg relative">
+      <button onclick="closeForm()" class="absolute top-3 right-3 text-xl">&times;</button>
+      <h2 class="text-2xl mb-4">Add Member</h2>
       <form id="memberForm" class="space-y-4">
-        <div>
-          <label for="name" class="block text-gray-200 font-medium mb-1" data-i18n="fullName">Full Name</label>
-          <input type="text" id="name" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 transition">
-        </div>
-        <div>
-          <label for="birthday" class="block text-gray-200 font-medium mb-1" data-i18n="birthday">Birthday</label>
-          <input type="date" id="birthday" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-green-500 transition">
-        </div>
-        <div>
-          <label for="sex" class="block text-gray-200 font-medium mb-1" data-i18n="sex">Sex</label>
-          <select id="sex" required class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-purple-500 transition">
-            <option value="">-- Select --</option>
-            <option value="Male">Male ♂️</option>
-            <option value="Female">Female ♀️</option>
-            <option value="Other">Other ⚧️</option>
-          </select>
-        </div>
-        <div>
-          <label for="familyMembers" class="block text-gray-200 font-medium mb-1" data-i18n="familyMembers">Family Members (one per line)</label>
-          <textarea id="familyMembers" rows="4" placeholder="John - Father&#10;Mary - Mother"
-            class="w-full p-3 rounded-xl border border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-pink-500 transition"></textarea>
-        </div>
-        <div class="space-y-3">
-          <button type="submit" class="w-full py-3 bg-blue-500 hover:bg-blue-600 rounded-xl font-semibold transform hover:scale-105 transition">
-            💾 <span data-i18n="saveLocal">Save Locally</span>
-          </button>
-          <button type="button" onclick="copyToClipboard()" class="w-full py-3 bg-green-500 hover:bg-green-600 rounded-xl font-semibold transform hover:scale-105 transition">
-            📋 <span data-i18n="copyClipboard">Copy to Clipboard</span>
-          </button>
-        </div>
+        <input type="text" id="name" placeholder="Full Name" required class="w-full p-2 rounded bg-gray-700 border border-gray-500">
+        <input type="date" id="birthday" required class="w-full p-2 rounded bg-gray-700 border border-gray-500">
+        <select id="sex" required class="w-full p-2 rounded bg-gray-700 border border-gray-500">
+          <option value="">-- Select Sex --</option>
+          <option value="Male">Male ♂️</option>
+          <option value="Female">Female ♀️</option>
+          <option value="Other">Other ⚧️</option>
+        </select>
+        <textarea id="familyMembers" placeholder="Family Members (Name - Relation)" class="w-full p-2 rounded bg-gray-700 border border-gray-500"></textarea>
+        <button type="submit" class="w-full py-2 bg-green-600 rounded">💾 Save</button>
       </form>
     </div>
   </div>
 
-<script>
-  let memberData = [];
-  let isOwner = false;
-  const OWNER_PASSWORD = "Hasintha15$";
+  <!-- Members Table (Owner only) -->
+  <div id="memberTableSection" class="hidden p-6">
+    <h2 class="text-3xl mb-4">All Members</h2>
+    <table class="w-full border border-gray-600 text-left">
+      <thead class="bg-gray-700">
+        <tr>
+          <th class="p-2">Name</th>
+          <th class="p-2">Birthday</th>
+          <th class="p-2">Sex</th>
+          <th class="p-2">Family</th>
+          <th class="p-2">Time</th>
+        </tr>
+      </thead>
+      <tbody id="memberTableBody" class="divide-y divide-gray-600"></tbody>
+    </table>
+  </div>
 
-  // Translations
-  const translations = {
-    en: { title:"Member Management System",ownerAccess:"Owner Access",downloadData:"Download JSON",addMember:"Add New Member",viewMembers:"View All Members",password:"Password",unlockFeatures:"Unlock Owner Features",fullName:"Full Name",birthday:"Birthday",sex:"Sex",familyMembers:"Family Members (one per line, format: Name - Relation)",saveLocal:"Save Locally (Recommended)",copyClipboard:"Copy to Clipboard",logout:"Logout",logoutConfirm:"Confirm Logout" },
-    si: { title:"සාමාජික කළමනාකරණ පද්ධතිය",ownerAccess:"අයිතිකරු පිවිසුම",downloadData:"JSON බාගන්න",addMember:"නව සාමාජිකයෙකු එකතු කරන්න",viewMembers:"සියලු සාමාජිකයින් බලන්න",password:"මුරපදය",unlockFeatures:"අයිතිකරුගේ විශේෂාංග අගුලු හරින්න",fullName:"සම්පූර්ණ නම",birthday:"උපන්දිනය",sex:"ස්ත්‍රී/පුරුෂ භාවය",familyMembers:"කുടുംബ සාමාජිකයින් (ඒක පෙළකට එකක්)",saveLocal:"ස්ථානිකව සුරකින්න (යෝජිතය)",copyClipboard:"පුවරුට පිටපත් කරන්න",logout:"පිටවන්න",logoutConfirm:"පිටවීම තහවුරු කරන්න" },
-    ta: { title:"உறுப்பினர் மேலாண்மை அமைப்பு",ownerAccess:"உரிமையாளர் அணுகல்",downloadData:"JSON பதிவிறக்கவும்",addMember:"புதிய உறுப்பினரைச் சேர்க்கவும்",viewMembers:"அனைத்து உறுப்பினர்களையும் காண்க",password:"கடவுச்சொல்",unlockFeatures:"உரிமையாளர் அம்சங்களைத் திறக்கவும்",fullName:"முழு பெயர்",birthday:"பிறந்தநாள்",sex:"பாலினம்",familyMembers:"குடும்ப உறுப்பினர்கள் (ஒன்றுக்கு ஒரு வரி)",saveLocal:"உள்ளூர் சேமிக்கவும் (பரிந்துரைக்கப்படுகிறது)",copyClipboard:"கிளிப்போர்டுக்கு நகலெடுக்கவும்",logout:"வெளியேறு",logoutConfirm:"வெளியேறுதல் உறுதிசெய்" }
+<script>
+  // ✅ Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyANUfgVwR0uWPOaFzf1GrehpfitR1sUGw0",
+    authDomain: "project01-d5df2.firebaseapp.com",
+    projectId: "project01-d5df2",
+    storageBucket: "project01-d5df2.firebasestorage.app",
+    messagingSenderId: "398259647179",
+    appId: "1:398259647179:web:54c78c2144a5d70e58614e",
+    measurementId: "G-Q1ZVC5C7LZ"
   };
 
-  function setLanguage(lang) {
-    document.getElementById("mainTitle").textContent = translations[lang].title;
-    document.querySelectorAll("[data-i18n]").forEach(el => {
-      const key = el.getAttribute("data-i18n");
-      if (translations[lang][key]) el.textContent = translations[lang][key];
-    });
-  }
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
 
-  // Local storage
-  function loadData() { const saved = localStorage.getItem('memberData'); if (saved) memberData = JSON.parse(saved); }
-  function saveData() { localStorage.setItem('memberData', JSON.stringify(memberData)); }
+  let isOwner = false;
+  const OWNER_PASSWORD = "Hasintha15$"; // 🔑 Change this to your own
 
-  // Status messages
-  function showStatus(message, isSuccess = true) {
-    const statusDiv = document.getElementById('statusDisplay');
-    statusDiv.className = `mb-4 p-4 rounded-xl max-w-2xl w-full mx-4 animate-[slideDownFade_0.5s_ease] ${isSuccess ? 'bg-green-600' : 'bg-red-600'}`;
-    statusDiv.textContent = message;
-    statusDiv.classList.remove('hidden');
-    setTimeout(() => statusDiv.classList.add('hidden'), 5000);
-  }
-
-  // Form submit
-  document.getElementById("memberForm").addEventListener("submit", function(event) {
-    event.preventDefault();
-    const formData = {
+  // 🔹 Add member to Firestore
+  document.getElementById("memberForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const data = {
       name: document.getElementById("name").value,
       birthday: document.getElementById("birthday").value,
       sex: document.getElementById("sex").value,
       family: document.getElementById("familyMembers").value,
       timestamp: new Date().toISOString()
     };
-    memberData.push(formData);
-    saveData();
-    showStatus(`✅ Member "${formData.name}" saved successfully!`);
-    document.getElementById("memberForm").reset();
-    closeForm();
+    try {
+      await db.collection("members").add(data);
+      showStatus(`✅ Member "${data.name}" saved!`);
+      document.getElementById("memberForm").reset();
+      closeForm();
+    } catch (err) {
+      showStatus("❌ Error saving data: " + err.message, false);
+    }
   });
 
-  function copyToClipboard() {
-    const formData = {
-      name: document.getElementById("name").value,
-      birthday: document.getElementById("birthday").value,
-      sex: document.getElementById("sex").value,
-      family: document.getElementById("familyMembers").value
-    };
-    const text = `Name: ${formData.name}\nBirthday: ${formData.birthday}\nSex: ${formData.sex}\nFamily Members:\n${formData.family}`;
-    navigator.clipboard.writeText(text).then(() => {
-      showStatus("📋 Member data copied to clipboard!");
-    }).catch(() => {
-      showStatus("❌ Failed to copy", false);
-    });
-  }
-
-  function downloadSubmissions() {
-    if (!isOwner) return showStatus("❌ Owner login required.", false);
-    if (memberData.length === 0) return showStatus("📝 No data to download.", false);
-    const dataStr = JSON.stringify(memberData, null, 2);
-    const blob = new Blob([dataStr], {type: 'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `member_data_${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  function downloadPDF() {
-    if (!isOwner) return showStatus("❌ Owner login required.", false);
-    if (memberData.length === 0) return showStatus("📝 No data to download.", false);
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFontSize(16); doc.text("Member Data", 10, 10);
-    doc.setFontSize(12);
-    let y = 20;
-    memberData.forEach((m, i) => {
-      doc.text(`${i+1}. ${m.name} (${m.sex}) - ${m.birthday}`, 10, y);
-      y += 7;
-      if (m.family) {
-        doc.text("Family:", 15, y);
-        y += 6;
-        m.family.split("\n").forEach(line => {
-          doc.text(`- ${line}`, 20, y);
-          y += 6;
-        });
-      }
-      y += 4;
-      if (y > 270) { doc.addPage(); y = 20; }
-    });
-    doc.save("member_data.pdf");
-  }
-
-  // Clear local storage
-  function clearData() {
-    if (!isOwner) return showStatus("❌ Owner login required.", false);
-    if (!confirm("⚠️ Are you sure you want to clear ALL member data? This cannot be undone.")) return;
-    memberData = [];
-    localStorage.removeItem('memberData');
-    showStatus("🗑️ All member data has been cleared!");
-  }
-
-  // Owner login/logout
-  document.getElementById("ownerForm").addEventListener("submit", function(e) {
+  // 🔹 Owner Login
+  document.getElementById("ownerForm").addEventListener("submit", (e) => {
     e.preventDefault();
-    const entered = document.getElementById("ownerPassword").value;
-    if (entered === OWNER_PASSWORD) {
+    const pass = document.getElementById("ownerPassword").value;
+    if (pass === OWNER_PASSWORD) {
       isOwner = true;
-      showStatus("✅ Owner access granted!");
-      document.getElementById("ownerModal").classList.add("hidden");
-      document.getElementById("ownerLoginBtn").classList.add("hidden");
-      document.getElementById("downloadBtn").classList.remove("hidden");
-      document.getElementById("downloadPdfBtn").classList.remove("hidden");
-      document.getElementById("clearDataBtn").classList.remove("hidden");
-      document.getElementById("logoutBtn").classList.remove("hidden");
+      showOwnerFeatures();
+      closeOwnerLogin();
+      loadMembers();
+      showStatus("🔓 Owner Access Granted!");
     } else {
-      showStatus("❌ Incorrect password.", false);
+      showStatus("❌ Wrong password!", false);
     }
   });
 
-  document.getElementById("logoutForm").addEventListener("submit", function(e) {
-    e.preventDefault();
-    const entered = document.getElementById("logoutPassword").value;
-    if (entered === OWNER_PASSWORD) {
-      isOwner = false;
-      showStatus("✅ Logged out successfully!");
-      document.getElementById("logoutModal").classList.add("hidden");
-      document.getElementById("ownerLoginBtn").classList.remove("hidden");
-      document.getElementById("downloadBtn").classList.add("hidden");
-      document.getElementById("downloadPdfBtn").classList.add("hidden");
-      document.getElementById("clearDataBtn").classList.add("hidden");
-      document.getElementById("logoutBtn").classList.add("hidden");
-    } else {
-      showStatus("❌ Incorrect password.", false);
-    }
-  });
+  // 🔹 Load members into table (real-time)
+  function loadMembers() {
+    db.collection("members").orderBy("timestamp", "desc")
+      .onSnapshot(snapshot => {
+        const tbody = document.getElementById("memberTableBody");
+        tbody.innerHTML = "";
+        snapshot.forEach(doc => {
+          const m = doc.data();
+          tbody.innerHTML += `
+            <tr>
+              <td class="p-2">${m.name}</td>
+              <td class="p-2">${m.birthday}</td>
+              <td class="p-2">${m.sex}</td>
+              <td class="p-2 whitespace-pre-line">${m.family || ""}</td>
+              <td class="p-2">${new Date(m.timestamp).toLocaleString()}</td>
+            </tr>`;
+        });
+      });
+  }
 
-  // Modal controls
-  function showOwnerLogin(){ document.getElementById("ownerModal").classList.remove("hidden"); }
-  function closeOwnerLogin(){ document.getElementById("ownerModal").classList.add("hidden"); }
+  // 🔹 Show & Hide UI
+  function showOwnerFeatures() {
+    document.getElementById("ownerLoginBtn").classList.add("hidden");
+    document.getElementById("downloadBtn").classList.remove("hidden");
+    document.getElementById("downloadPdfBtn").classList.remove("hidden");
+    document.getElementById("clearDataBtn").classList.remove("hidden");
+    document.getElementById("logoutBtn").classList.remove("hidden");
+    document.getElementById("memberTableSection").classList.remove("hidden");
+  }
+  function logoutOwner() {
+    isOwner = false;
+    document.getElementById("ownerLoginBtn").classList.remove("hidden");
+    document.getElementById("downloadBtn").classList.add("hidden");
+    document.getElementById("downloadPdfBtn").classList.add("hidden");
+    document.getElementById("clearDataBtn").classList.add("hidden");
+    document.getElementById("logoutBtn").classList.add("hidden");
+    document.getElementById("memberTableSection").classList.add("hidden");
+    showStatus("🔒 Owner Logged Out.");
+  }
+
+  // 🔹 PDF Download
+  function downloadPDF() {
+    db.collection("members").get().then(snapshot => {
+      let { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text("Member Records", 10, 10);
+      let y = 20;
+      snapshot.forEach(d => {
+        let m = d.data();
+        doc.text(`${m.name} | ${m.birthday} | ${m.sex}`, 10, y);
+        y += 10;
+      });
+      doc.save("members.pdf");
+    });
+  }
+
+  // 🔹 JSON Download
+  function downloadSubmissions() {
+    db.collection("members").get().then(snapshot => {
+      let members = [];
+      snapshot.forEach(doc => members.push(doc.data()));
+      const blob = new Blob([JSON.stringify(members, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "members.json";
+      a.click();
+    });
+  }
+
+  // 🔹 Clear Data
+  async function clearData() {
+    if (!confirm("⚠️ Delete all data?")) return;
+    const snap = await db.collection("members").get();
+    const batch = db.batch();
+    snap.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+    showStatus("🗑️ All members deleted.");
+  }
+
+  // 🔹 UI Helpers
+  function showStatus(msg, ok = true) {
+    const div = document.getElementById("statusDisplay");
+    div.textContent = msg;
+    div.className = `mt-4 p-3 rounded ${ok ? 'bg-green-600' : 'bg-red-600'}`;
+    div.classList.remove("hidden");
+    setTimeout(() => div.classList.add("hidden"), 4000);
+  }
   function openForm(){ document.getElementById("formModal").classList.remove("hidden"); }
   function closeForm(){ document.getElementById("formModal").classList.add("hidden"); }
-  function showLogoutConfirm(){ document.getElementById("logoutModal").classList.remove("hidden"); }
-  function closeLogoutConfirm(){ document.getElementById("logoutModal").classList.add("hidden"); }
-
-  loadData(); setLanguage("en");
+  function showOwnerLogin(){ document.getElementById("ownerModal").classList.remove("hidden"); }
+  function closeOwnerLogin(){ document.getElementById("ownerModal").classList.add("hidden"); }
 </script>
-
 </body>
 </html>
