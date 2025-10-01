@@ -1,103 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Member Management System</title>
+
+  <!-- Tailwind (UI) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Firebase -->
+
+  <!-- Firebase (compat build) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+  <!-- jsPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    @keyframes fadeInScale { 0% { opacity: 0; transform: scale(.95) } 100% { opacity: 1; transform: scale(1) } }
+    @keyframes slideDownFade { 0% { opacity: 0; transform: translateY(-10px)} 100% { opacity: 1; transform: translateY(0)} }
+    @keyframes glowPulse { 0%,100% { text-shadow: 0 0 2px #60a5fa, 0 0 4px #9333ea } 50% { text-shadow: 0 0 3px #3b82f6, 0 0 6px #a855f7 } }
+  </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
+<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white min-h-screen">
 
   <!-- Top bar -->
   <div class="flex justify-between items-center p-4">
     <div class="space-x-2">
-      <button onclick="setLanguage('en')" class="px-3 py-1 bg-blue-600 rounded">EN</button>
-      <button onclick="setLanguage('si')" class="px-3 py-1 bg-green-600 rounded">සිං</button>
-      <button onclick="setLanguage('ta')" class="px-3 py-1 bg-pink-600 rounded">தமிழ்</button>
+      <button onclick="setLanguage('en')" class="px-3 py-1 bg-blue-600 rounded text-sm">EN</button>
+      <button onclick="setLanguage('si')" class="px-3 py-1 bg-green-600 rounded text-sm">සිං</button>
+      <button onclick="setLanguage('ta')" class="px-3 py-1 bg-pink-600 rounded text-sm">தமிழ்</button>
     </div>
-    <div>
-      <button id="ownerLoginBtn" onclick="showOwnerLogin()" class="px-4 py-2 bg-gray-700 rounded">
+
+    <div class="flex items-center gap-2">
+      <button id="ownerLoginBtn" onclick="showOwnerLogin()" class="px-4 py-2 bg-gray-700 rounded shadow">
         🔐 <span data-i18n="ownerAccess">Owner Access</span>
       </button>
-      <button id="downloadBtn" onclick="downloadSubmissions()" class="hidden px-4 py-2 bg-purple-600 rounded ml-2">
-        💾 Download JSON
+
+      <button id="downloadBtn" onclick="downloadSubmissions()" class="hidden px-4 py-2 bg-purple-600 rounded shadow">
+        💾 <span data-i18n="downloadData">Download JSON</span>
       </button>
-      <button id="downloadPdfBtn" onclick="downloadPDF()" class="hidden px-4 py-2 bg-yellow-600 rounded ml-2">
-        📕 Download PDF
+
+      <button id="downloadPdfBtn" onclick="downloadPDF()" class="hidden px-4 py-2 bg-yellow-600 rounded shadow">
+        📕 <span data-i18n="downloadPDF">Download PDF</span>
       </button>
-      <button id="clearDataBtn" onclick="clearData()" class="hidden px-4 py-2 bg-red-700 rounded ml-2">
-        🗑️ Clear Data
+
+      <button id="clearDataBtn" onclick="clearData()" class="hidden px-4 py-2 bg-red-700 rounded shadow">
+        🗑️ <span data-i18n="clearData">Clear All Data</span>
       </button>
-      <button id="logoutBtn" onclick="logoutOwner()" class="hidden px-4 py-2 bg-red-600 rounded ml-2">
-        🚪 Logout
+
+      <button id="logoutBtn" onclick="showLogoutConfirm()" class="hidden px-4 py-2 bg-red-600 rounded shadow">
+        🚪 <span data-i18n="logout">Logout</span>
       </button>
     </div>
   </div>
 
   <!-- Main -->
-  <div class="flex flex-col items-center justify-center">
-    <h1 data-i18n="title" class="text-5xl font-bold my-6">Member Management System</h1>
-    <button onclick="openForm()" class="px-6 py-3 bg-blue-600 rounded-lg">➕ Add New Member</button>
-  </div>
+  <main class="flex flex-col items-center justify-center px-4">
+    <h1 id="mainTitle" data-i18n="title" class="text-5xl md:text-6xl font-extrabold my-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 animate-[glowPulse_2s_infinite]">
+      Member Management System
+    </h1>
 
-  <!-- Status messages -->
-  <div id="statusDisplay" class="hidden text-center mt-4 p-3 rounded-xl"></div>
+    <div class="space-x-4 mb-6">
+      <button onclick="openForm()" class="px-6 py-3 bg-blue-600 rounded-xl shadow">➕ <span data-i18n="addMember">Add New Member</span></button>
+      <button onclick="window.open('https://docs.google.com/spreadsheets/d/14a39saiscm07b_0uXkm4ShB5NysLfS-RWPNoanLUppU/edit?gid=0','_blank')" class="px-6 py-3 bg-green-600 rounded-xl shadow">📄 <span data-i18n="viewMembers">View All Members</span></button>
+    </div>
+
+    <!-- Terms -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl mb-8">
+      <a href="terms1.pdf" target="_blank" class="block px-6 py-4 bg-indigo-600 rounded-xl shadow">📜 <span data-i18n="terms1">Committee Terms (Part 1)</span></a>
+      <a href="terms2.pdf" target="_blank" class="block px-6 py-4 bg-teal-600 rounded-xl shadow">📜 <span data-i18n="terms2">Committee Terms (Part 2)</span></a>
+      <a href="terms3.pdf" target="_blank" class="block px-6 py-4 bg-rose-600 rounded-xl shadow">📜 <span data-i18n="terms3">Committee Terms (Part 3)</span></a>
+    </div>
+
+    <div id="statusDisplay" class="hidden mb-6 p-4 rounded-xl max-w-2xl w-full mx-4"></div>
+  </main>
 
   <!-- Owner Login Modal -->
-  <div id="ownerModal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center">
-    <div class="bg-gray-800 rounded-xl p-6 w-96 relative">
-      <button onclick="closeOwnerLogin()" class="absolute top-3 right-3 text-xl">&times;</button>
-      <h2 class="text-2xl mb-4">Owner Access</h2>
+  <div id="ownerModal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-60">
+    <div class="bg-gray-800 rounded-2xl p-8 w-full max-w-sm">
+      <button type="button" onclick="closeOwnerLogin()" class="absolute top-4 right-4 text-2xl text-gray-400">&times;</button>
+      <h2 class="text-2xl font-semibold mb-4">🔐 <span data-i18n="ownerAccess">Owner Access</span></h2>
       <form id="ownerForm" class="space-y-4">
-        <input type="password" id="ownerPassword" placeholder="Enter password" class="w-full p-2 rounded bg-gray-700 border border-gray-500">
-        <button type="submit" class="w-full py-2 bg-blue-600 rounded">Unlock</button>
+        <label class="block text-gray-200" data-i18n="password">Password</label>
+        <input id="ownerPassword" data-i18n-placeholder="password" placeholder="Password" type="password" class="w-full p-3 rounded-xl bg-gray-700 border border-gray-600" required />
+        <button type="submit" class="w-full py-3 bg-blue-500 rounded-xl">🔓 <span data-i18n="unlockFeatures">Unlock Owner Features</span></button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Logout Modal -->
+  <div id="logoutModal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-60">
+    <div class="bg-gray-800 rounded-2xl p-8 w-full max-w-sm">
+      <button type="button" onclick="closeLogoutConfirm()" class="absolute top-4 right-4 text-2xl text-gray-400">&times;</button>
+      <h2 class="text-2xl font-semibold mb-4">🚪 <span data-i18n="logoutConfirm">Confirm Logout</span></h2>
+      <form id="logoutForm" class="space-y-4">
+        <label class="block text-gray-200" data-i18n="password">Password</label>
+        <input id="logoutPassword" data-i18n-placeholder="password" placeholder="Password" type="password" class="w-full p-3 rounded-xl bg-gray-700 border border-gray-600" required />
+        <button type="submit" class="w-full py-3 bg-red-500 rounded-xl">✅ <span data-i18n="logout">Logout</span></button>
       </form>
     </div>
   </div>
 
   <!-- Add Member Modal -->
-  <div id="formModal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center">
-    <div class="bg-gray-800 rounded-xl p-6 w-full max-w-lg relative">
-      <button onclick="closeForm()" class="absolute top-3 right-3 text-xl">&times;</button>
-      <h2 class="text-2xl mb-4">Add Member</h2>
+  <div id="formModal" class="fixed inset-0 hidden items-center justify-center bg-black bg-opacity-60">
+    <div class="bg-gray-800 rounded-2xl p-8 w-full max-w-lg">
+      <button type="button" onclick="closeForm()" class="absolute top-4 right-4 text-2xl text-gray-400">&times;</button>
+      <h2 class="text-2xl font-semibold mb-4" data-i18n="addMember">Add Member</h2>
+
       <form id="memberForm" class="space-y-4">
-        <input type="text" id="name" placeholder="Full Name" required class="w-full p-2 rounded bg-gray-700 border border-gray-500">
-        <input type="date" id="birthday" required class="w-full p-2 rounded bg-gray-700 border border-gray-500">
-        <select id="sex" required class="w-full p-2 rounded bg-gray-700 border border-gray-500">
-          <option value="">-- Select Sex --</option>
-          <option value="Male">Male ♂️</option>
-          <option value="Female">Female ♀️</option>
-          <option value="Other">Other ⚧️</option>
+        <label data-i18n="fullName" class="block text-gray-200">Full Name</label>
+        <input id="name" data-i18n-placeholder="fullName" placeholder="Full Name" type="text" class="w-full p-3 rounded-xl bg-gray-700 border border-gray-600" required />
+
+        <label data-i18n="birthday" class="block text-gray-200">Birthday</label>
+        <input id="birthday" data-i18n-placeholder="birthday" placeholder="Birthday" type="date" class="w-full p-3 rounded-xl bg-gray-700 border border-gray-600" required />
+
+        <label data-i18n="sex" class="block text-gray-200">Sex</label>
+        <select id="sex" class="w-full p-3 rounded-xl bg-gray-700 border border-gray-600" required>
+          <option value="" data-i18n-option="select">-- Select --</option>
+          <option value="male" data-i18n-option="male">Male ♂️</option>
+          <option value="female" data-i18n-option="female">Female ♀️</option>
+          <option value="other" data-i18n-option="other">Other ⚧️</option>
         </select>
-        <textarea id="familyMembers" placeholder="Family Members (Name - Relation)" class="w-full p-2 rounded bg-gray-700 border border-gray-500"></textarea>
-        <button type="submit" class="w-full py-2 bg-green-600 rounded">💾 Save</button>
+
+        <label data-i18n="familyMembers" class="block text-gray-200">Family Members</label>
+        <textarea id="familyMembers" data-i18n-placeholder="familyMembers" placeholder="John - Father&#10;Mary - Mother" rows="4" class="w-full p-3 rounded-xl bg-gray-700 border border-gray-600"></textarea>
+
+        <div class="space-y-3">
+          <button type="submit" class="w-full py-3 bg-blue-500 rounded-xl font-semibold">💾 <span data-i18n="saveLocal">Save</span></button>
+          <button type="button" onclick="copyToClipboard()" class="w-full py-3 bg-green-500 rounded-xl font-semibold">📋 <span data-i18n="copyClipboard">Copy to Clipboard</span></button>
+        </div>
       </form>
     </div>
   </div>
 
-  <!-- Members Table (Owner only) -->
-  <div id="memberTableSection" class="hidden p-6">
-    <h2 class="text-3xl mb-4">All Members</h2>
-    <table class="w-full border border-gray-600 text-left">
-      <thead class="bg-gray-700">
-        <tr>
-          <th class="p-2">Name</th>
-          <th class="p-2">Birthday</th>
-          <th class="p-2">Sex</th>
-          <th class="p-2">Family</th>
-          <th class="p-2">Time</th>
-        </tr>
-      </thead>
-      <tbody id="memberTableBody" class="divide-y divide-gray-600"></tbody>
-    </table>
-  </div>
+  <!-- Owner table (visible only to owner) -->
+  <section id="memberTableSection" class="hidden max-w-6xl mx-auto p-6">
+    <h2 class="text-2xl font-semibold mb-4" data-i18n="allMembers">All Members</h2>
+    <div class="overflow-x-auto bg-gray-800 rounded-xl">
+      <table class="min-w-full text-left">
+        <thead class="bg-gray-700">
+          <tr>
+            <th class="p-3" data-i18n="thName">Name</th>
+            <th class="p-3" data-i18n="thBirthday">Birthday</th>
+            <th class="p-3" data-i18n="thSex">Sex</th>
+            <th class="p-3" data-i18n="thFamily">Family</th>
+            <th class="p-3" data-i18n="thTime">Time</th>
+          </tr>
+        </thead>
+        <tbody id="memberTableBody" class="divide-y divide-gray-700"></tbody>
+      </table>
+    </div>
+  </section>
 
 <script>
-  // ✅ Firebase Config
+  // ---------- Firebase config (user provided) ----------
   const firebaseConfig = {
     apiKey: "AIzaSyANUfgVwR0uWPOaFzf1GrehpfitR1sUGw0",
     authDomain: "project01-d5df2.firebaseapp.com",
@@ -107,139 +163,373 @@
     appId: "1:398259647179:web:54c78c2144a5d70e58614e",
     measurementId: "G-Q1ZVC5C7LZ"
   };
-
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
+  // ---------- App state ----------
+  let memberData = [];              // cached list (keeps latest snapshot)
+  let membersUnsubscribe = null;    // live listener handle
   let isOwner = false;
-  const OWNER_PASSWORD = "Hasintha15$"; // 🔑 Change this to your own
+  const OWNER_PASSWORD = "Hasintha15$";
 
-  // 🔹 Add member to Firestore
-  document.getElementById("memberForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const data = {
-      name: document.getElementById("name").value,
-      birthday: document.getElementById("birthday").value,
-      sex: document.getElementById("sex").value,
-      family: document.getElementById("familyMembers").value,
-      timestamp: new Date().toISOString()
-    };
-    try {
-      await db.collection("members").add(data);
-      showStatus(`✅ Member "${data.name}" saved!`);
-      document.getElementById("memberForm").reset();
-      closeForm();
-    } catch (err) {
-      showStatus("❌ Error saving data: " + err.message, false);
+  // ---------- Translations ----------
+  const translations = {
+    en: {
+      title: "Member Management System",
+      ownerAccess: "Owner Access",
+      addMember: "Add New Member",
+      viewMembers: "View All Members",
+      terms1: "Committee Terms (Part 1)",
+      terms2: "Committee Terms (Part 2)",
+      terms3: "Committee Terms (Part 3)",
+      password: "Password",
+      unlockFeatures: "Unlock Owner Features",
+      logout: "Logout",
+      logoutConfirm: "Confirm Logout",
+      fullName: "Full Name",
+      birthday: "Birthday",
+      sex: "Sex",
+      familyMembers: "Family Members (one per line)",
+      saveLocal: "Save",
+      copyClipboard: "Copy to Clipboard",
+      downloadData: "Download JSON",
+      downloadPDF: "Download PDF",
+      clearData: "Clear All Data",
+      allMembers: "All Members",
+      thName: "Name",
+      thBirthday: "Birthday",
+      thSex: "Sex",
+      thFamily: "Family",
+      thTime: "Time",
+      select: "-- Select --",
+      male: "Male ",
+      female: "Female ",
+      other: "Other "
+    },
+    si: {
+      title: "සාමාජික කළමනාකරණ පද්ධතිය",
+      ownerAccess: "අයිතිකරු පිවිසුම",
+      addMember: "නව සාමාජිකයෙකු එක් කරන්න",
+      viewMembers: "සියලු සාමාජිකයින් බලන්න",
+      terms1: "කමිටු නීති (1 වන කොටස)",
+      terms2: "කමිටු නීති (2 වන කොටස)",
+      terms3: "කමිටු නීති (3 වන කොටස)",
+      password: "මුරපදය",
+      unlockFeatures: "අයිතිකරු විශේෂාංග සක්‍රීය කරන්න",
+      logout: "පිටවන්න",
+      logoutConfirm: "පිටවීම තහවුරු කරන්න",
+      fullName: "සම්පූර්ණ නම",
+      birthday: "උපන්දිනය",
+      sex: "ස්ත්‍රී/පුරුෂ",
+      familyMembers: "කுடുംബ සාමාජිකයින් (පේළියකට එකක්)",
+      saveLocal: "සුරකින්න",
+      copyClipboard: "පසුරු පුවරුවට පිටපත් කරන්න",
+      downloadData: "JSON බාගත කරන්න",
+      downloadPDF: "PDF බාගත කරන්න",
+      clearData: "සියලු දත්ත මකන්න",
+      allMembers: "සියලු සාමාජිකයින්",
+      thName: "නම",
+      thBirthday: "උපන්දිනය",
+      thSex: "ස්ත්‍රී/පුරුෂ",
+      thFamily: "පවුලේ",
+      thTime: "වේලාව",
+      select: "-- තෝරන්න --",
+      male: "පුරුෂ",
+      female: "ගැහැණු",
+      other: "වෙනත්"
+    },
+    ta: {
+      title: "உறுப்பினர் மேலாண்மை அமைப்பு",
+      ownerAccess: "உரிமையாளர் அணுகல்",
+      addMember: "புதிய உறுப்பினரைச் சேர்க்கவும்",
+      viewMembers: "அனைத்து உறுப்பினர்களையும் பார்க்கவும்",
+      terms1: "குழு விதிமுறைகள் (பகுதி 1)",
+      terms2: "குழு விதிமுறைகள் (பகுதி 2)",
+      terms3: "குழு விதிமுறைகள் (பகுதி 3)",
+      password: "கடவுச்சொல்",
+      unlockFeatures: "உரிமையாளர் அம்சங்களைத் திறக்கவும்",
+      logout: "வெளியேறு",
+      logoutConfirm: "வெளியேற உறுதிசெய்க",
+      fullName: "முழு பெயர்",
+      birthday: "பிறந்தநாள்",
+      sex: "பாலினம்",
+      familyMembers: "குடும்ப உறுப்பினர்கள் (ஒரு வரிக்கு ஒன்று)",
+      saveLocal: "சேமிக்கவும்",
+      copyClipboard: "கிளிப்போர்டுக்கு நகலெடுக்கவும்",
+      downloadData: "JSON பதிவிறக்கவும்",
+      downloadPDF: "PDF பதிவிறக்கவும்",
+      clearData: "அனைத்துப் பதிவுகளையும் மெல்லவும்",
+      allMembers: "அனைத்து உறுப்பினர்கள்",
+      thName: "பெயர்",
+      thBirthday: "பிறந்தநாள்",
+      thSex: "பாலினம்",
+      thFamily: "குடும்பம்",
+      thTime: "நேரம்",
+      select: "-- தேர்ந்தெடு --",
+      male: "ஆண்",
+      female: "பெண்",
+      other: "மற்றவை"
     }
-  });
+  };
 
-  // 🔹 Owner Login
-  document.getElementById("ownerForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const pass = document.getElementById("ownerPassword").value;
-    if (pass === OWNER_PASSWORD) {
-      isOwner = true;
-      showOwnerFeatures();
-      closeOwnerLogin();
-      loadMembers();
-      showStatus("🔓 Owner Access Granted!");
-    } else {
-      showStatus("❌ Wrong password!", false);
-    }
-  });
+  let currentLang = 'en';
 
-  // 🔹 Load members into table (real-time)
-  function loadMembers() {
-    db.collection("members").orderBy("timestamp", "desc")
-      .onSnapshot(snapshot => {
-        const tbody = document.getElementById("memberTableBody");
-        tbody.innerHTML = "";
-        snapshot.forEach(doc => {
-          const m = doc.data();
-          tbody.innerHTML += `
-            <tr>
-              <td class="p-2">${m.name}</td>
-              <td class="p-2">${m.birthday}</td>
-              <td class="p-2">${m.sex}</td>
-              <td class="p-2 whitespace-pre-line">${m.family || ""}</td>
-              <td class="p-2">${new Date(m.timestamp).toLocaleString()}</td>
-            </tr>`;
-        });
-      });
-  }
-
-  // 🔹 Show & Hide UI
-  function showOwnerFeatures() {
-    document.getElementById("ownerLoginBtn").classList.add("hidden");
-    document.getElementById("downloadBtn").classList.remove("hidden");
-    document.getElementById("downloadPdfBtn").classList.remove("hidden");
-    document.getElementById("clearDataBtn").classList.remove("hidden");
-    document.getElementById("logoutBtn").classList.remove("hidden");
-    document.getElementById("memberTableSection").classList.remove("hidden");
-  }
-  function logoutOwner() {
-    isOwner = false;
-    document.getElementById("ownerLoginBtn").classList.remove("hidden");
-    document.getElementById("downloadBtn").classList.add("hidden");
-    document.getElementById("downloadPdfBtn").classList.add("hidden");
-    document.getElementById("clearDataBtn").classList.add("hidden");
-    document.getElementById("logoutBtn").classList.add("hidden");
-    document.getElementById("memberTableSection").classList.add("hidden");
-    showStatus("🔒 Owner Logged Out.");
-  }
-
-  // 🔹 PDF Download
-  function downloadPDF() {
-    db.collection("members").get().then(snapshot => {
-      let { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.text("Member Records", 10, 10);
-      let y = 20;
-      snapshot.forEach(d => {
-        let m = d.data();
-        doc.text(`${m.name} | ${m.birthday} | ${m.sex}`, 10, y);
-        y += 10;
-      });
-      doc.save("members.pdf");
+  function setLanguage(lang) {
+    currentLang = lang;
+    // text content
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (translations[lang][key]) el.textContent = translations[lang][key];
+    });
+    // placeholders
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const key = el.getAttribute('data-i18n-placeholder');
+      if (translations[lang][key]) el.placeholder = translations[lang][key];
+    });
+    // select option labels
+    document.querySelectorAll('[data-i18n-option]').forEach(opt => {
+      const key = opt.getAttribute('data-i18n-option');
+      if (translations[lang][key]) opt.textContent = translations[lang][key];
     });
   }
 
-  // 🔹 JSON Download
-  function downloadSubmissions() {
-    db.collection("members").get().then(snapshot => {
-      let members = [];
-      snapshot.forEach(doc => members.push(doc.data()));
-      const blob = new Blob([JSON.stringify(members, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "members.json";
-      a.click();
-    });
-  }
-
-  // 🔹 Clear Data
-  async function clearData() {
-    if (!confirm("⚠️ Delete all data?")) return;
-    const snap = await db.collection("members").get();
-    const batch = db.batch();
-    snap.forEach(doc => batch.delete(doc.ref));
-    await batch.commit();
-    showStatus("🗑️ All members deleted.");
-  }
-
-  // 🔹 UI Helpers
+  // ---------- UI helpers ----------
   function showStatus(msg, ok = true) {
-    const div = document.getElementById("statusDisplay");
-    div.textContent = msg;
-    div.className = `mt-4 p-3 rounded ${ok ? 'bg-green-600' : 'bg-red-600'}`;
-    div.classList.remove("hidden");
-    setTimeout(() => div.classList.add("hidden"), 4000);
+    const s = document.getElementById('statusDisplay');
+    s.textContent = msg;
+    s.className = `mb-4 p-4 rounded-xl max-w-2xl w-full ${ok ? 'bg-green-600' : 'bg-red-600'}`;
+    s.classList.remove('hidden');
+    setTimeout(()=> s.classList.add('hidden'), 4000);
   }
-  function openForm(){ document.getElementById("formModal").classList.remove("hidden"); }
-  function closeForm(){ document.getElementById("formModal").classList.add("hidden"); }
-  function showOwnerLogin(){ document.getElementById("ownerModal").classList.remove("hidden"); }
-  function closeOwnerLogin(){ document.getElementById("ownerModal").classList.add("hidden"); }
+
+  function openForm(){ document.getElementById('formModal').classList.remove('hidden'); }
+  function closeForm(){ document.getElementById('formModal').classList.add('hidden'); }
+  function showOwnerLogin(){ document.getElementById('ownerModal').classList.remove('hidden'); }
+  function closeOwnerLogin(){ document.getElementById('ownerModal').classList.add('hidden'); document.getElementById('ownerForm').reset(); }
+  function showLogoutConfirm(){ document.getElementById('logoutModal').classList.remove('hidden'); }
+  function closeLogoutConfirm(){ document.getElementById('logoutModal').classList.add('hidden'); document.getElementById('logoutForm').reset(); }
+
+  // ---------- Member save (form submit) ----------
+  document.addEventListener('DOMContentLoaded', () => {
+    // init language and local cache
+    setLanguage('en');
+    loadLocalBackup();
+
+    // member form
+    document.getElementById('memberForm').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const birthday = document.getElementById('birthday').value;
+      const sex = document.getElementById('sex').value; // 'male' | 'female' | 'other'
+      const family = document.getElementById('familyMembers').value.trim();
+      if (!name) return showStatus('❌ Name is required', false);
+      const docObj = { name, birthday, sex, family, timestamp: new Date().toISOString() };
+
+      // Update local cache & backup
+      memberData.unshift(docObj); // newest first
+      saveLocalBackup();
+
+      // save to Firestore
+      try {
+        await db.collection('members').add(docObj);
+        showStatus(`✅ Member "${name}" saved!`);
+      } catch (err) {
+        console.error('Firestore add error', err);
+        showStatus('❌ Error saving to Firebase: ' + (err.message || err), false);
+      }
+
+      document.getElementById('memberForm').reset();
+      closeForm();
+    });
+
+    // owner login form
+    document.getElementById('ownerForm').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const pw = document.getElementById('ownerPassword').value;
+      if (pw === OWNER_PASSWORD) {
+        isOwner = true;
+        document.getElementById('ownerModal').classList.add('hidden');
+        toggleOwnerUI(true);
+        await subscribeMembersRealtime();
+        showStatus('🔓 Owner access granted!');
+      } else {
+        showStatus('❌ Incorrect password', false);
+      }
+      document.getElementById('ownerForm').reset();
+    });
+
+    // logout form
+    document.getElementById('logoutForm').addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const pw = document.getElementById('logoutPassword').value;
+      if (pw === OWNER_PASSWORD) {
+        isOwner = false;
+        toggleOwnerUI(false);
+        unsubscribeMembers();
+        showStatus('✅ Logged out');
+        document.getElementById('logoutModal').classList.add('hidden');
+      } else {
+        showStatus('❌ Incorrect password', false);
+      }
+      document.getElementById('logoutForm').reset();
+    });
+  });
+
+  // ---------- Local backup ----------
+  function saveLocalBackup() {
+    try { localStorage.setItem('memberData', JSON.stringify(memberData)); } catch (e) { console.warn(e); }
+  }
+  function loadLocalBackup() {
+    try {
+      const saved = localStorage.getItem('memberData');
+      if (saved) memberData = JSON.parse(saved);
+    } catch (e) { console.warn(e); }
+  }
+
+  // ---------- Firestore real-time subscription for owner ----------
+  async function subscribeMembersRealtime() {
+    // unsubscribe previous if existing
+    unsubscribeMembers();
+    try {
+      membersUnsubscribe = db.collection('members').orderBy('timestamp','desc').onSnapshot(snapshot => {
+        memberData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderMemberTable();
+        saveLocalBackup();
+      }, err => {
+        console.error('onSnapshot err', err);
+        showStatus('❌ Error receiving updates: ' + (err.message || err), false);
+      });
+    } catch (err) {
+      console.error('subscribeMembersRealtime error', err);
+    }
+  }
+  function unsubscribeMembers() {
+    if (typeof membersUnsubscribe === 'function') { membersUnsubscribe(); membersUnsubscribe = null; }
+  }
+
+  // ---------- Render owner table ----------
+  function getSexLabel(sexKey) {
+    if (!sexKey) return '';
+    // sexKey may be 'male', 'Male', 'female', etc.
+    const k = String(sexKey).toLowerCase();
+    if (k === 'male' || k === 'm') return translations[currentLang].male || 'Male';
+    if (k === 'female' || k === 'f') return translations[currentLang].female || 'Female';
+    if (k === 'other') return translations[currentLang].other || 'Other';
+    // fallback: return raw
+    return sexKey;
+  }
+
+  function renderMemberTable() {
+    const tbody = document.getElementById('memberTableBody');
+    tbody.innerHTML = '';
+    memberData.forEach(m => {
+      const tr = document.createElement('tr');
+      tr.className = 'odd:bg-gray-800 even:bg-gray-900';
+      const nameTd = `<td class="p-3 align-top">${escapeHtml(m.name||'')}</td>`;
+      const birthdayTd = `<td class="p-3 align-top">${escapeHtml(m.birthday||'')}</td>`;
+      const sexTd = `<td class="p-3 align-top">${escapeHtml(getSexLabel(m.sex)||'')}</td>`;
+      const familyTd = `<td class="p-3 align-top whitespace-pre-line">${escapeHtml(m.family||'')}</td>`;
+      const timeTd = `<td class="p-3 align-top">${m.timestamp ? new Date(m.timestamp).toLocaleString() : ''}</td>`;
+      tr.innerHTML = nameTd + birthdayTd + sexTd + familyTd + timeTd;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // simple escape to avoid accidental HTML injection
+  function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+  }
+
+  // ---------- Downloads ----------
+  function downloadSubmissions() {
+    if (!isOwner) return showStatus('❌ Owner login required', false);
+    if (memberData.length === 0) return showStatus('📝 No data to download', false);
+    const blob = new Blob([JSON.stringify(memberData, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `member_data_${new Date().toISOString().slice(0,10)}.json`; a.click();
+    showStatus('💾 JSON downloaded');
+  }
+
+  function downloadPDF() {
+    if (!isOwner) return showStatus('❌ Owner login required', false);
+    if (memberData.length === 0) return showStatus('📝 No data to download', false);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(16); doc.text('Member Data', 10, 10);
+    let y = 20;
+    memberData.forEach((m, i) => {
+      doc.setFontSize(12);
+      doc.text(`${i+1}. ${m.name} (${getSexLabel(m.sex)}) - ${m.birthday}`, 10, y); y += 7;
+      if (m.family) {
+        doc.text('Family:', 12, y); y += 6;
+        m.family.split('\n').forEach(line => { doc.text('- ' + line, 15, y); y += 6; });
+      }
+      y += 4;
+      if (y > 270) { doc.addPage(); y = 20; }
+    });
+    doc.save(`member_data_${new Date().toISOString().slice(0,10)}.pdf`);
+    showStatus('📄 PDF downloaded');
+  }
+
+  // ---------- Clear data (deletes from Firestore & local) ----------
+  async function clearData() {
+    if (!isOwner) return showStatus('❌ Owner login required', false);
+    if (!confirm('⚠️ Delete ALL members from Firestore? This cannot be undone.')) return;
+    try {
+      const snap = await db.collection('members').get();
+      const batch = db.batch();
+      snap.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+      memberData = [];
+      saveLocalBackup();
+      renderMemberTable();
+      showStatus('🗑️ All members deleted');
+    } catch (err) {
+      console.error('clearData err', err);
+      showStatus('❌ Error deleting: ' + (err.message || err), false);
+    }
+  }
+
+  // ---------- Owner UI toggle ----------
+  function toggleOwnerUI(show) {
+    const ids = ['downloadBtn','downloadPdfBtn','clearDataBtn','logoutBtn','memberTableSection'];
+    if (show) {
+      document.getElementById('ownerLoginBtn').classList.add('hidden');
+      ids.forEach(id => document.getElementById(id).classList.remove('hidden'));
+    } else {
+      document.getElementById('ownerLoginBtn').classList.remove('hidden');
+      ids.forEach(id => document.getElementById(id).classList.add('hidden'));
+    }
+  }
+
+  // ---------- Logout confirm show/hide ----------
+  function showLogoutConfirm(){ document.getElementById('logoutModal').classList.remove('hidden'); }
+  function closeLogoutConfirm(){ document.getElementById('logoutModal').classList.add('hidden'); }
+
+  // ---------- Copy last entry ----------
+  function copyToClipboard() {
+    if (memberData.length === 0) return showStatus('ℹ️ No entries yet', false);
+    const m = memberData[0];
+    const txt = `Name: ${m.name}\nBirthday: ${m.birthday}\nSex: ${getSexLabel(m.sex)}\nFamily:\n${m.family || ''}`;
+    navigator.clipboard.writeText(txt).then(()=> showStatus('📋 Copied to clipboard!'), ()=> showStatus('❌ Copy failed', false));
+  }
+
+  // Expose a few functions for inline onclicks (already used)
+  window.openForm = openForm;
+  window.closeForm = closeForm;
+  window.showOwnerLogin = showOwnerLogin;
+  window.closeOwnerLogin = closeOwnerLogin;
+  window.showLogoutConfirm = showLogoutConfirm;
+  window.closeLogoutConfirm = closeLogoutConfirm;
+  window.setLanguage = setLanguage;
+  window.copyToClipboard = copyToClipboard;
+  window.downloadSubmissions = downloadSubmissions;
+  window.downloadPDF = downloadPDF;
+  window.clearData = clearData;
+
+  // Ensure initial language & local load on initial parse (in case DOMContentLoaded not fired yet)
+  setLanguage('en');
+  loadLocalBackup();
 </script>
 </body>
 </html>
