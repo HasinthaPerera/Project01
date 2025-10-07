@@ -13,12 +13,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
-@media (max-width: 768px) {
-  table { font-size: 0.85rem; }
-  th, td { padding: 6px; }
-  h1 { font-size: 1.8rem; }
-  button, a { font-size: 0.9rem; }
-}
+  @media (max-width: 768px) {
+    table { font-size: 0.85rem; }
+    th, td { padding: 6px; }
+    h1 { font-size: 1.8rem; }
+    button, a { font-size: 0.9rem; }
+  }
 </style>
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
@@ -34,6 +34,11 @@
     <button id="ownerLoginBtn" onclick="showOwnerLogin()" class="px-4 py-2 bg-gray-700 rounded">🔐 Owner Access</button>
     <button id="logoutBtn" onclick="logoutOwner()" class="hidden px-4 py-2 bg-red-600 rounded ml-2">🚪 Logout</button>
   </div>
+</div>
+
+<!-- Logo -->
+<div class="flex justify-center my-4">
+  <img src="logo.png" alt="Committee Logo" class="w-32 h-32 object-contain">
 </div>
 
 <!-- Main -->
@@ -92,6 +97,7 @@
   </table>
 </div>
 
+<!-- Modals (Add/Edit/Owner) -->
 <!-- Add Member Modal -->
 <div id="formModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4">
   <div class="bg-gray-800 p-6 rounded-lg w-full max-w-sm">
@@ -145,7 +151,7 @@
 </div>
 
 <script>
-/* Translation Texts */
+// --- Translations ---
 const translations = {
   en: {
     title:"Member Management System", addMember:"➕ Add New Member", viewMembers:"📋 View All Members",
@@ -179,7 +185,6 @@ const translations = {
   }
 };
 
-/* Function to set translations */
 function setLanguage(lang){
   document.querySelectorAll("[data-i18n]").forEach(el=>{
     if(translations[lang][el.getAttribute("data-i18n")]) el.textContent = translations[lang][el.getAttribute("data-i18n")];
@@ -189,7 +194,7 @@ function setLanguage(lang){
   });
 }
 
-/* Firebase Setup */
+// --- Firebase Setup ---
 const firebaseConfig = {
   apiKey:"AIzaSyANUfgVwR0uWPOaFzf1GrehpfitR1sUGw0",
   authDomain:"project01-d5df2.firebaseapp.com",
@@ -202,7 +207,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore(), auth = firebase.auth();
 
-/* DOM references */
+// --- DOM References ---
 let isOwner=false, currentEditId=null;
 const ownerLoginBtn=document.getElementById("ownerLoginBtn");
 const logoutBtn=document.getElementById("logoutBtn");
@@ -210,21 +215,21 @@ const ownerTools=document.getElementById("ownerTools");
 const pendingTable=document.getElementById("pendingTable");
 const membersTable=document.getElementById("membersTable");
 
-/* Form & Modal Controls */
+// --- Form & Modal Controls ---
 const openForm=()=>document.getElementById("formModal").classList.remove("hidden");
 const closeForm=()=>document.getElementById("formModal").classList.add("hidden");
 const showOwnerLogin=()=>document.getElementById("ownerModal").classList.remove("hidden");
 const closeOwnerLogin=()=>document.getElementById("ownerModal").classList.add("hidden");
 const closeEditModal=()=>{ currentEditId=null; document.getElementById("editModal").classList.add("hidden"); }
 
-/* Status Display */
+// --- Status Display ---
 const showStatus=(msg,s=true)=>{
   const el=document.getElementById("status");
   el.textContent=msg;
   el.className = s?"text-green-400 mt-4":"text-red-400 mt-4";
-};
+}
 
-/* Member Submission */
+// --- Member Submission ---
 document.getElementById("memberForm").addEventListener("submit", async e=>{
   e.preventDefault();
   const data={
@@ -242,14 +247,16 @@ document.getElementById("memberForm").addEventListener("submit", async e=>{
   }catch(err){ showStatus("❌ "+err.message,false); }
 });
 
-/* Load Members Table */
+// --- Load Members Ordered by memberId ---
 async function loadMembers(){
-  const table=membersTable, body=document.getElementById("membersBody");
-  body.innerHTML="";
-  const snapshot=await db.collection("members").get();
+  const table = membersTable;
+  const body = document.getElementById("membersBody");
+  body.innerHTML = "";
+
+  const snapshot = await db.collection("members").orderBy("memberId").get();
   snapshot.forEach(doc=>{
-    const m=doc.data();
-    body.innerHTML+=`<tr class="border-b border-gray-700">
+    const m = doc.data();
+    body.innerHTML += `<tr class="border-b border-gray-700">
       <td>${m.memberId||"-"}</td>
       <td>${m.name}</td>
       <td>${m.birthday}</td>
@@ -259,19 +266,20 @@ async function loadMembers(){
       <button onclick="deleteMember('${doc.id}')" class='bg-red-600 px-2 py-1 rounded ml-1'>❌</button>`:"-"}</td>
     </tr>`;
   });
+
   table.classList.remove("hidden");
   if(isOwner) ownerTools.classList.remove("hidden");
 }
 
-/* Load Pending Members */
+// --- Load Pending Members ---
 async function loadPendingMembers(){
   if(!isOwner) return;
   const body=document.getElementById("pendingBody");
   body.innerHTML="";
   const snapshot=await db.collection("pendingMembers").get();
   snapshot.forEach(doc=>{
-    const m=doc.data();
-    body.innerHTML+=`<tr class="border-b border-gray-700">
+    const m = doc.data();
+    body.innerHTML += `<tr class="border-b border-gray-700">
       <td>${m.name}</td>
       <td>${m.birthday}</td>
       <td>${m.sex}</td>
@@ -285,13 +293,13 @@ async function loadPendingMembers(){
   pendingTable.classList.remove("hidden");
 }
 
-/* Owner Login */
+// --- Owner Login ---
 document.getElementById("ownerForm").addEventListener("submit", async e=>{
   e.preventDefault();
   const ownerEmail=document.getElementById("ownerEmail").value;
   const ownerPassword=document.getElementById("ownerPassword").value;
   try{
-    await auth.signInWithEmailAndPassword(ownerEmail,ownerPassword);
+    await auth.signInWithEmailAndPassword(ownerEmail, ownerPassword);
     isOwner=true;
     showStatus("🔓 Owner Access Granted!");
     ownerLoginBtn.classList.add("hidden");
@@ -302,7 +310,7 @@ document.getElementById("ownerForm").addEventListener("submit", async e=>{
   }catch(err){ showStatus("❌ Login failed: "+err.message,false); }
 });
 
-/* Logout Owner */
+// --- Logout Owner ---
 function logoutOwner(){
   auth.signOut().then(()=>{
     isOwner=false;
@@ -315,7 +323,7 @@ function logoutOwner(){
   });
 }
 
-/* Delete / Approve Members */
+// --- Delete / Approve Members ---
 async function deleteMember(id){ if(!isOwner) return; await db.collection("members").doc(id).delete(); showStatus(translations['en'].deleted); loadMembers(); }
 async function deletePending(id){ if(!isOwner) return; await db.collection("pendingMembers").doc(id).delete(); showStatus(translations['en'].deleted); loadPendingMembers(); }
 async function approveMember(id){
@@ -331,7 +339,7 @@ async function approveMember(id){
   }
 }
 
-/* Edit Member */
+// --- Edit Member ---
 function editMember(id){
   currentEditId=id;
   db.collection("members").doc(id).get().then(doc=>{
@@ -363,7 +371,7 @@ document.getElementById("editForm").addEventListener("submit", async e=>{
   }catch(err){ showStatus("❌ "+err.message,false); }
 });
 
-/* Download Data */
+// --- Download Data ---
 async function downloadJSON(){
   const snap=await db.collection("members").get();
   const data=snap.docs.map(d=>d.data());
