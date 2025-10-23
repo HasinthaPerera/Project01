@@ -1,401 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Member Management System</title>
-<script src="https://cdn.tailwindcss.com"></script>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-<style>
-  @media (max-width: 768px) {
-    table { font-size: 0.85rem; }
-    th, td { padding: 6px; }
-    h1 { font-size: 1.8rem; }
-    button, a { font-size: 0.9rem; }
-  }
-  /* make cover area taller on large screens */
-  .cover-section { min-height: 220px; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Member Management System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col">
 
-<!-- NAVBAR -->
-<div class="flex items-center justify-between p-4">
-  <!-- left: language -->
-  <div class="flex items-center gap-2">
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center text-center">
+
+  <!-- Language Buttons -->
+  <div class="flex space-x-2 absolute top-4 left-4">
     <button onclick="setLanguage('en')" class="px-3 py-1 bg-blue-600 rounded">EN</button>
     <button onclick="setLanguage('si')" class="px-3 py-1 bg-green-600 rounded">සිං</button>
     <button onclick="setLanguage('ta')" class="px-3 py-1 bg-pink-600 rounded">தமிழ்</button>
   </div>
 
-  <!-- right: owner buttons -->
-  <div class="flex items-center gap-2">
-    <button id="ownerLoginBtn" class="px-4 py-2 bg-gray-700 rounded" onclick="showOwnerLogin()">🔐 Owner Access</button>
-    <button id="logoutBtn" class="px-4 py-2 bg-red-600 rounded hidden" onclick="logoutOwner()">🚪 Logout</button>
-  </div>
-</div>
-
-
-<div class="relative cover-section flex items-center justify-center">
-  
-  <img src="coverphoto.avif" alt="cover" class="absolute inset-0 w-full h-full object-cover brightness-60">
-  <div class="relative z-10 flex flex-col items-center text-center px-4">
-    
-    <img src="logo-example.png" alt="Committee Logo" class="mb-3 w-36 sm:w-48 md:w-56 object-contain">
-
-    <h1 data-i18n="title" class="text-3xl sm:text-5xl font-bold text-white drop-shadow-md">Member Management System</h1>
-  </div>
-</div>
-
-<!-- MAIN CONTENT -->
-<main class="flex-1 p-6">
-  <div class="max-w-5xl mx-auto text-center">
-    <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-      
-      <a href="addmember.html" target="_blank" class="inline-block px-6 py-3 bg-blue-600 rounded-lg text-lg" data-i18n="addMember">➕ Add New Member</a>
-      <button onclick="loadMembers()" class="px-6 py-3 bg-green-600 rounded-lg text-lg" data-i18n="viewMembers">📋 View All Members</button>
+  <!-- Logo and Title with Cover -->
+  <div class="relative w-full flex flex-col items-center justify-center mt-8 mb-8">
+    <div class="absolute inset-0">
+      <img src="coverphoto.avif" alt="Cover" class="w-full h-64 object-cover brightness-75" />
     </div>
-
-    <div class="flex flex-wrap justify-center gap-3 mt-6">
-      <a href="terms1.pdf" class="px-4 py-2 bg-purple-600 rounded" data-i18n="terms1">📜 Committee Terms (1)</a>
-      <a href="terms2.pdf" class="px-4 py-2 bg-teal-600 rounded" data-i18n="terms2">📜 Committee Terms (2)</a>
-      <a href="terms3.pdf" class="px-4 py-2 bg-red-600 rounded" data-i18n="terms3">📜 Committee Terms (3)</a>
+    <div class="relative z-10 flex flex-col items-center justify-center py-10">
+      <img src="logo-example.png" alt="Logo" class="w-40 h-40 object-contain mb-4" />
+      <h1 data-i18n="title" class="text-4xl sm:text-5xl font-bold text-white">Member Management System</h1>
     </div>
   </div>
 
-  <div id="status" class="text-center mt-6 text-lg"></div>
-
-  <!-- MEMBERS TABLE -->
-  <section id="membersTable" class="hidden mt-8 p-4 overflow-x-auto">
-    <h2 class="text-2xl mb-4 text-center" data-i18n="membersList">📋 Members List</h2>
-    <table class="table-auto w-full border border-gray-600 rounded-lg">
-      <thead>
-        <tr class="bg-gray-800">
-          <th class="px-4 py-2" data-i18n="memberId">Member ID</th>
-          <th class="px-4 py-2" data-i18n="name">Name</th>
-          <th class="px-4 py-2" data-i18n="birthday">Birthday</th>
-          <th class="px-4 py-2" data-i18n="sex">Sex</th>
-          <th class="px-4 py-2" data-i18n="family">Family</th>
-          <th class="px-4 py-2" data-i18n="actions">Actions</th>
-        </tr>
-      </thead>
-      <tbody id="membersBody" class="text-center"></tbody>
-    </table>
-
-    <div id="ownerTools" class="hidden mt-4 flex gap-3 justify-center">
-      <button onclick="downloadJSON()" class="px-4 py-2 bg-purple-600 rounded" data-i18n="downloadJSON">💾 Download JSON</button>
-      <button onclick="downloadPDF()" class="px-4 py-2 bg-yellow-600 rounded" data-i18n="downloadPDF">📕 Download PDF</button>
-    </div>
-  </section>
-
-  <!-- PENDING (owner only) -->
-  <section id="pendingTable" class="hidden mt-8 p-4 overflow-x-auto">
-    <h2 class="text-2xl mb-4 text-center" data-i18n="pendingMembers">🕒 Pending Members</h2>
-    <table class="table-auto w-full border border-gray-600 rounded-lg">
-      <thead>
-        <tr class="bg-gray-800">
-          <th class="px-4 py-2" data-i18n="name">Name</th>
-          <th class="px-4 py-2" data-i18n="birthday">Birthday</th>
-          <th class="px-4 py-2" data-i18n="sex">Sex</th>
-          <th class="px-4 py-2" data-i18n="family">Family</th>
-          <th class="px-4 py-2" data-i18n="actions">Actions</th>
-        </tr>
-      </thead>
-      <tbody id="pendingBody" class="text-center"></tbody>
-    </table>
-  </section>
-</main>
-
-
-<!-- Edit Modal -->
-<div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-  <div class="bg-gray-800 p-6 rounded-lg w-full max-w-sm">
-    <h3 class="text-xl mb-4" data-i18n="editMemberModal">Edit Member</h3>
-    <form id="editForm" class="space-y-3">
-      <input id="editMemberId" placeholder="Member ID" class="w-full p-2 rounded bg-gray-700" required />
-      <input id="editName" placeholder="Name" class="w-full p-2 rounded bg-gray-700" required />
-      <input id="editBirthday" type="date" class="w-full p-2 rounded bg-gray-700" required />
-      <select id="editSex" class="w-full p-2 rounded bg-gray-700" required>
-        <option value="">Select Sex</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-      </select>
-      <textarea id="editFamily" placeholder="Family Members" class="w-full p-2 rounded bg-gray-700"></textarea>
-      <button type="submit" class="w-full py-2 bg-green-600 rounded" data-i18n="saveChanges">Save Changes</button>
-    </form>
-    <button onclick="closeEditModal()" class="mt-3 w-full py-2 bg-red-600 rounded" data-i18n="close">Close</button>
+  <!-- Main Buttons -->
+  <div class="flex flex-col sm:flex-row gap-3">
+    <a href="addmember.html" target="_blank" class="px-6 py-3 bg-blue-600 rounded-lg text-lg inline-block" data-i18n="addMember">
+      ➕ Add New Member
+    </a>
+    <a href="viewmembers.html" target="_blank" class="px-6 py-3 bg-green-600 rounded-lg text-lg inline-block" data-i18n="viewMembers">
+      📋 View All Members
+    </a>
   </div>
-</div>
 
-<!-- OWNER LOGIN MODAL -->
-<div id="ownerModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-  <div class="bg-gray-800 p-6 rounded-lg w-full max-w-sm">
-    <h3 class="text-xl mb-4" data-i18n="ownerLogin">Owner Login</h3>
-    <form id="ownerForm" class="space-y-3">
-      <input id="ownerEmail" type="email" placeholder="Email" class="w-full p-2 rounded bg-gray-700" required />
-      <input id="ownerPassword" type="password" placeholder="Password" class="w-full p-2 rounded bg-gray-700" required />
-      <button type="submit" class="w-full py-2 bg-green-600 rounded" data-i18n="unlock">Unlock</button>
-    </form>
-    <button onclick="closeOwnerLogin()" class="mt-3 w-full py-2 bg-red-600 rounded" data-i18n="close">Close</button>
-  </div>
-</div>
+  <!-- Footer -->
+  <footer class="mt-10 text-gray-400 text-sm">
+    © 2025 Committee Management | All Rights Reserved
+  </footer>
 
-<!-- FOOTER -->
-<footer class="bg-gray-800 text-white text-center py-6 mt-auto">
-  <p>© 2025 Your Committee Name. All Rights Reserved.</p>
-  <p>Designed by Hasintha Heshan</p>
-</footer>
-
-<script>
-
-const translations = {
-  en: {
-    title:"Member Management System", addMember:"➕ Add New Member", viewMembers:"📋 View All Members",
-    terms1:"📜 Committee Terms (1)", terms2:"📜 Committee Terms (2)", terms3:"📜 Committee Terms (3)",
-    membersList:"📋 Members List", memberId:"Member ID", name:"Name", birthday:"Birthday",
-    sex:"Sex", family:"Family", actions:"Actions", pendingMembers:"🕒 Pending Members",
-    addMemberModal:"Add Member", selectSex:"Select Sex", male:"Male", female:"Female",
-    save:"Save", close:"Close", editMemberModal:"Edit Member", saveChanges:"Save Changes",
-    ownerLogin:"Owner Login", unlock:"Unlock", downloadJSON:"💾 Download JSON", downloadPDF:"📕 Download PDF",
-    submitted:"✅ Member submitted for approval!", updated:"✅ Member updated!", deleted:"🗑️ Member deleted!"
-  },
-  si: {
-    title:"සාමාජික කළමනාකරණ පද්ධතිය", addMember:"➕ නව සාමාජිකයෙක් එක් කරන්න", viewMembers:"📋 සියලු සාමාජිකයින් බැලීම",
-    terms1:"📜 කමිටු නියමයන් (1)", terms2:"📜 කමිටු නියමයන් (2)", terms3:"📜 කමිටු නියමයන් (3)",
-    membersList:"📋 සාමාජික ලැයිස්තුව", memberId:"සාමාජික අංකය", name:"නම", birthday:"උපන් දිනය",
-    sex:"ලිංගය", family:"පවුල", actions:"ක්‍රියා", pendingMembers:"🕒 බලාසිටින සාමාජිකයින්",
-    addMemberModal:"සාමාජිකයෙක් එක් කරන්න", selectSex:"ස්ත්‍රී/පුරුෂ භාවය තෝරන්න", male:"පිරිමි", female:"ගැහැණු",
-    save:"සුරකින්න", close:"ඉවත් කරන්න", editMemberModal:"සාමාජිකයා සංස්කරණය කරන්න", saveChanges:"වෙනස්කම් සුරකින්න",
-    ownerLogin:"හිමිකරු පිවිසුම", unlock:"විවෘත කරන්න", downloadJSON:"💾 JSON බාගන්න", downloadPDF:"📕 PDF බාගන්න",
-    submitted:"✅ සාමාජිකයා අනුමත කිරීමට ඉදිරිපත් කරන ලදි!", updated:"✅ සාමාජිකයා යාවත්කාලීන කරන ලදි!", deleted:"🗑️ සාමාජිකයා මකා දමන ලදි!"
-  },
-  ta: {
-    title:"உறுப்பினர் மேலாண்மை அமைப்பு", addMember:"➕ புதிய உறுப்பினர் சேர்க்கவும்", viewMembers:"📋 அனைத்து உறுப்பினர்களையும் பார்க்கவும்",
-    terms1:"📜 குழு விதிகள் (1)", terms2:"📜 குழு விதிகள் (2)", terms3:"📜 குழு விதிகள் (3)",
-    membersList:"📋 உறுப்பினர் பட்டியல்", memberId:"உறுப்பினர் ஐடி", name:"பெயர்", birthday:"பிறந்த தேதி",
-    sex:"பாலினம்", family:"குடும்பம்", actions:"செயல்கள்", pendingMembers:"🕒 நிலுவையில் உள்ள உறுப்பினர்கள்",
-    addMemberModal:"உறுப்பினர் சேர்க்கவும்", selectSex:"பாலினம் தேர்ந்தெடுக்கவும்", male:"ஆண்", female:"பெண்",
-    save:"சேமிக்கவும்", close:"மூடு", editMemberModal:"உறுப்பினரைத் திருத்தவும்", saveChanges:"மாற்றங்களைச் சேமிக்கவும்",
-    ownerLogin:"உரிமையாளர் உள்நுழைவு", unlock:"திறக்கவும்", downloadJSON:"💾 JSON பதிவிறக்கவும்", downloadPDF:"📕 PDF பதிவிறக்கவும்",
-    submitted:"✅ உறுப்பினர் ஒப்புதலுக்காக சமர்ப்பிக்கப்பட்டார்!", updated:"✅ உறுப்பினர் புதுப்பிக்கப்பட்டார்!", deleted:"🗑️ உறுப்பினர் நீக்கப்பட்டது!"
-  }
-};
-
-function setLanguage(lang){
-  document.querySelectorAll("[data-i18n]").forEach(el=>{
-    const key = el.getAttribute("data-i18n");
-    if(translations[lang] && translations[lang][key]) el.textContent = translations[lang][key];
-  });
-  document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
-    const key = el.getAttribute("data-i18n-placeholder");
-    if(translations[lang] && translations[lang][key]) el.placeholder = translations[lang][key];
-  });
-}
-
-
-const firebaseConfig = {
-  apiKey:"AIzaSyANUfgVwR0uWPOaFzf1GrehpfitR1sUGw0",
-  authDomain:"project01-d5df2.firebaseapp.com",
-  projectId:"project01-d5df2",
-  storageBucket:"project01-d5df2.firebasestorage.app",
-  messagingSenderId:"398259647179",
-  appId:"1:398259647179:web:54c78c2144a5d70e58614e",
-  measurementId:"G-Q1ZVC5C7LZ"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
-
-const ownerLoginBtn = document.getElementById("ownerLoginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const ownerTools = document.getElementById("ownerTools");
-const membersTable = document.getElementById("membersTable");
-const pendingTable = document.getElementById("pendingTable");
-let isOwner = false;
-let currentEditId = null;
-
-
-auth.onAuthStateChanged(user => {
- 
-  if(user) {
-    isOwner = true;
-    ownerLoginBtn.classList.add("hidden");
-    logoutBtn.classList.remove("hidden");
-    ownerTools.classList.remove("hidden");
-    
-    pendingTable.classList.remove("hidden");
-    loadMembers();    
-    loadPendingMembers();
-  } else {
-    isOwner = false;
-    ownerLoginBtn.classList.remove("hidden");
-    logoutBtn.classList.add("hidden");
-    ownerTools.classList.add("hidden");
-    pendingTable.classList.add("hidden");
-    loadMembers();     
-  }
-});
-
-
-function showOwnerLogin(){ document.getElementById("ownerModal").classList.remove("hidden"); }
-function closeOwnerLogin(){ document.getElementById("ownerModal").classList.add("hidden"); }
-function closeEditModal(){ document.getElementById("editModal").classList.add("hidden"); currentEditId=null; }
-function showStatus(msg, ok=true){ const el=document.getElementById("status"); el.textContent=msg; el.className = ok? "text-green-400 mt-6":"text-red-400 mt-6"; }
-
-
-async function loadMembers(){
-  const body = document.getElementById("membersBody");
-  body.innerHTML = "";
-  try {
-   
-    const snapshot = await db.collection("members").orderBy("memberId").get();
-    snapshot.forEach(doc => {
-      const m = doc.data();
-      body.innerHTML += `<tr class="border-b border-gray-700">
-        <td>${m.memberId||"-"}</td>
-        <td>${m.name||""}</td>
-        <td>${m.birthday||""}</td>
-        <td>${m.sex||""}</td>
-        <td>${m.family||""}</td>
-        <td>${isOwner?`<button onclick="editMember('${doc.id}')" class='bg-yellow-600 px-2 py-1 rounded'>✏️</button>
-               <button onclick="deleteMember('${doc.id}')" class='bg-red-600 px-2 py-1 rounded ml-1'>❌</button>`:"-"}</td>
-      </tr>`;
-    });
-    membersTable.classList.remove("hidden");
-    if(isOwner) ownerTools.classList.remove("hidden");
-  } catch(err) {
-    showStatus("❌ "+err.message,false);
-  }
-}
-
-async function loadPendingMembers(){
-  if(!isOwner) return;
-  const body = document.getElementById("pendingBody");
-  body.innerHTML = "";
-  try {
-    const snapshot = await db.collection("pendingMembers").get();
-    snapshot.forEach(doc => {
-      const m = doc.data();
-      body.innerHTML += `<tr class="border-b border-gray-700">
-        <td>${m.name||""}</td><td>${m.birthday||""}</td><td>${m.sex||""}</td><td>${m.family||""}</td>
-        <td><button onclick="approveMember('${doc.id}')" class='bg-green-600 px-2 py-1 rounded'>✅</button>
-            <button onclick="deletePending('${doc.id}')" class='bg-red-600 px-2 py-1 rounded ml-1'>❌</button></td>
-      </tr>`;
-    });
-    pendingTable.classList.remove("hidden");
-  } catch(err) {
-    showStatus("❌ "+err.message,false);
-  }
-}
-
-document.getElementById("editForm").addEventListener("submit", async e=>{
-  e.preventDefault();
-  if(!currentEditId) return;
-  try {
-    await db.collection("members").doc(currentEditId).update({
-      memberId: document.getElementById("editMemberId").value,
-      name: document.getElementById("editName").value,
-      birthday: document.getElementById("editBirthday").value,
-      sex: document.getElementById("editSex").value,
-      family: document.getElementById("editFamily").value
-    });
-    showStatus(translations['en'].updated);
-    closeEditModal();
-    loadMembers();
-  } catch(err){ showStatus("❌ "+err.message,false); }
-});
-
-/* Approve / Delete */
-async function approveMember(id){
-  if(!isOwner) return;
-  const ref = db.collection("pendingMembers").doc(id);
-  const snap = await ref.get();
-  if(!snap.exists) return;
-  const data = snap.data();
-  const snapshot = await db.collection("members").get();
-  const newId = "M"+String(snapshot.size+1).padStart(3,"0");
-  data.memberId = newId;
-  await db.collection("members").add(data);
-  await ref.delete();
-  showStatus(`✅ Member approved! ID: ${newId}`);
-  loadMembers(); loadPendingMembers();
-}
-async function deletePending(id){ if(!isOwner) return; await db.collection("pendingMembers").doc(id).delete(); showStatus(translations['en'].deleted); loadPendingMembers(); }
-async function deleteMember(id){ if(!isOwner) return; await db.collection("members").doc(id).delete(); showStatus(translations['en'].deleted); loadMembers(); }
-
-/* Edit helper */
-function editMember(id){
-  currentEditId = id;
-  db.collection("members").doc(id).get().then(doc=>{
-    if(!doc.exists) return;
-    const m = doc.data();
-    document.getElementById("editMemberId").value = m.memberId || "";
-    document.getElementById("editName").value = m.name || "";
-    document.getElementById("editBirthday").value = m.birthday || "";
-    document.getElementById("editSex").value = m.sex || "";
-    document.getElementById("editFamily").value = m.family || "";
-    document.getElementById("editModal").classList.remove("hidden");
-  }).catch(err => showStatus("❌ "+err.message,false));
-}
-
-
-document.getElementById("ownerForm").addEventListener("submit", async e=>{
-  e.preventDefault();
-  const email = document.getElementById("ownerEmail").value;
-  const pass = document.getElementById("ownerPassword").value;
-  try {
-    await auth.signInWithEmailAndPassword(email, pass);
-    
-    closeOwnerLogin();
-  } catch(err){
-    showStatus("❌ Login failed: "+err.message,false);
-  }
-});
-
-function logoutOwner(){
-  auth.signOut().then(()=>{
-   
-    showStatus("🔒 Owner Logged Out");
-  });
-}
-
-
-async function downloadJSON(){
-  try {
-    const snap = await db.collection("members").get();
-    const data = snap.docs.map(d=>d.data());
-    const blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "members.json";
-    a.click();
-  } catch(err){ showStatus("❌ "+err.message,false); }
-}
-
-async function downloadPDF(){
-  try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    let y = 20;
-    const snap = await db.collection("members").get();
-    snap.forEach(d=>{
-      const m = d.data();
-      doc.text(`ID:${m.memberId} | ${m.name} | ${m.birthday} | ${m.sex} | ${m.family}`, 10, y);
-      y+=8;
-    });
-    doc.save("members.pdf");
-  } catch(err){ showStatus("❌ "+err.message,false); }
-}
-
-loadMembers();
-
-
-</script>
+  <script>
+    const translations = {
+      en: { title: "Member Management System", addMember: "➕ Add New Member", viewMembers: "📋 View All Members" },
+      si: { title: "සාමාජික කළමනාකරණ පද්ධතිය", addMember: "➕ නව සාමාජිකයෙක් එක් කරන්න", viewMembers: "📋 සියලු සාමාජිකයින් බලන්න" },
+      ta: { title: "உறுப்பினர் மேலாண்மை அமைப்பு", addMember: "➕ புதிய உறுப்பினர் சேர்க்கவும்", viewMembers: "📋 அனைத்து உறுப்பினர்களையும் பார்க்கவும்" }
+    };
+    function setLanguage(lang) {
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        el.textContent = translations[lang][el.getAttribute("data-i18n")] || el.textContent;
+      });
+    }
+  </script>
 </body>
 </html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>View Members</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body class="bg-gray-900 text-white min-h-screen">
+
+  <!-- Navbar -->
+  <div class="flex flex-wrap justify-between items-center p-4">
+    <div class="space-x-2 mb-2 sm:mb-0">
+      <button onclick="setLanguage('en')" class="px-3 py-1 bg-blue-600 rounded">EN</button>
+      <button onclick="setLanguage('si')" class="px-3 py-1 bg-green-600 rounded">සිං</button>
+      <button onclick="setLanguage('ta')" class="px-3 py-1 bg-pink-600 rounded">தமிழ்</button>
+    </div>
+    <div>
+      <button id="ownerLoginBtn" onclick="showOwnerLogin()" class="px-4 py-2 bg-gray-700 rounded">🔐 Owner Access</button>
+      <button id="logoutBtn" onclick="logoutOwner()" class="hidden px-4 py-2 bg-red-600 rounded ml-2">🚪 Logout</button>
+    </div>
+  </div>
+
+  <!-- Logo and Title -->
+  <div class="flex flex-col items-center justify-center text-center">
+    <img src="logo-example.png" alt="Logo" class="w-32 h-32 mb-3" />
+    <h1 data-i18n="membersList" class="text-4xl font-bold mb-6 text-purple-400">📋 Members List</h1>
+  </div>
+
+  <!-- Members Table -->
+  <div id="membersTable" class="p-4 overflow-x-auto">
+    <table class="table-auto w-full border border-gray-600 rounded-lg">
+      <thead>
+        <tr class="bg-gray-800">
+          <th class="px-4 py-2">Member ID</th>
+          <th class="px-4 py-2">Name</th>
+          <th class="px-4 py-2">Birthday</th>
+          <th class="px-4 py-2">Sex</th>
+          <th class="px-4 py-2">Family</th>
+          <th class="px-4 py-2">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="membersBody" class="text-center"></tbody>
+    </table>
+
+    <div id="ownerTools" class="hidden mt-4 flex flex-wrap gap-3 justify-center">
+      <button onclick="downloadJSON()" class="px-4 py-2 bg-purple-600 rounded">💾 Download JSON</button>
+      <button onclick="downloadPDF()" class="px-4 py-2 bg-yellow-600 rounded">📕 Download PDF</button>
+    </div>
+  </div>
+
+  <!-- Pending Members Table -->
+  <div id="pendingTable" class="hidden p-4 overflow-x-auto">
+    <h2 class="text-2xl mb-4 text-center">🕒 Pending Members</h2>
+    <table class="table-auto w-full border border-gray-600 rounded-lg">
+      <thead>
+        <tr class="bg-gray-800">
+          <th class="px-4 py-2">Name</th>
+          <th class="px-4 py-2">Birthday</th>
+          <th class="px-4 py-2">Sex</th>
+          <th class="px-4 py-2">Family</th>
+          <th class="px-4 py-2">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="pendingBody" class="text-center"></tbody>
+    </table>
+  </div>
+
+  <!-- Owner Login Modal -->
+  <div id="ownerModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4">
+    <div class="bg-gray-800 p-6 rounded-lg w-full max-w-sm">
+      <h2 class="text-2xl mb-4 text-center">Owner Login</h2>
+      <form id="ownerForm" class="space-y-3">
+        <input type="email" id="ownerEmail" placeholder="Email" required class="w-full p-2 rounded bg-gray-700">
+        <input type="password" id="ownerPassword" placeholder="Password" required class="w-full p-2 rounded bg-gray-700">
+        <button type="submit" class="w-full py-2 bg-green-600 rounded">Unlock</button>
+      </form>
+      <button onclick="closeOwnerLogin()" class="mt-4 w-full py-2 bg-red-600 rounded">Close</button>
+    </div>
+  </div>
+
+  <div id="status" class="text-center mt-4 text-lg"></div>
+
+  <script>
+    /* Firebase Config */
+    const firebaseConfig = {
+      apiKey: "AIzaSyANUfgVwR0uWPOaFzf1GrehpfitR1sUGw0",
+      authDomain: "project01-d5df2.firebaseapp.com",
+      projectId: "project01-d5df2",
+      storageBucket: "project01-d5df2.firebasestorage.app",
+      messagingSenderId: "398259647179",
+      appId: "1:398259647179:web:54c78c2144a5d70e58614e"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore(), auth = firebase.auth();
+    let isOwner = false;
+
+    /* Language */
+    const translations = {
+      en: { membersList: "📋 Members List" },
+      si: { membersList: "📋 සාමාජික ලැයිස්තුව" },
+      ta: { membersList: "📋 உறுப்பினர் பட்டியல்" }
+    };
+    function setLanguage(lang) {
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        el.textContent = translations[lang][el.getAttribute("data-i18n")] || el.textContent;
+      });
+    }
+
+    /* Owner Login Controls */
+    function showOwnerLogin() { document.getElementById("ownerModal").classList.remove("hidden"); }
+    function closeOwnerLogin() { document.getElementById("ownerModal").classList.add("hidden"); }
+    function logoutOwner() {
+      auth.signOut().then(() => {
+        isOwner = false;
+        showStatus("🔒 Owner Logged Out");
+        document.getElementById("ownerLoginBtn").classList.remove("hidden");
+        document.getElementById("logoutBtn").classList.add("hidden");
+        document.getElementById("ownerTools").classList.add("hidden");
+        document.getElementById("pendingTable").classList.add("hidden");
+        loadMembers();
+      });
+    }
+
+    document.getElementById("ownerForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      try {
+        await auth.signInWithEmailAndPassword(ownerEmail.value, ownerPassword.value);
+        isOwner = true;
+        showStatus("🔓 Owner Access Granted!");
+        ownerLoginBtn.classList.add("hidden");
+        logoutBtn.classList.remove("hidden");
+        closeOwnerLogin();
+        loadMembers();
+        loadPendingMembers();
+      } catch (err) { showStatus("❌ Login failed: " + err.message, false); }
+    });
+
+    function showStatus(msg, s = true) {
+      const el = document.getElementById("status");
+      el.textContent = msg;
+      el.className = s ? "text-green-400 mt-4" : "text-red-400 mt-4";
+    }
+
+    /* Load Approved Members */
+    async function loadMembers() {
+      const body = document.getElementById("membersBody");
+      body.innerHTML = "";
+      const snapshot = await db.collection("members").orderBy("memberId").get();
+      snapshot.forEach(doc => {
+        const m = doc.data();
+        body.innerHTML += `
+          <tr class="border-b border-gray-700">
+            <td>${m.memberId || "-"}</td>
+            <td>${m.name}</td>
+            <td>${m.birthday}</td>
+            <td>${m.sex}</td>
+            <td>${m.family}</td>
+            <td>${isOwner
+              ? `<button onclick="deleteMember('${doc.id}')" class='bg-red-600 px-2 py-1 rounded ml-1'>❌</button>`
+              : "-"
+            }</td>
+          </tr>`;
+      });
+      if (isOwner) document.getElementById("ownerTools").classList.remove("hidden");
+    }
+
+    /* Load Pending Members (for owner only) */
+    async function loadPendingMembers() {
+      if (!isOwner) return;
+      const body = document.getElementById("pendingBody");
+      body.innerHTML = "";
+      const snapshot = await db.collection("pendingMembers").get();
+      snapshot.forEach(doc => {
+        const m = doc.data();
+        body.innerHTML += `
+          <tr class="border-b border-gray-700">
+            <td>${m.name}</td>
+            <td>${m.birthday}</td>
+            <td>${m.sex}</td>
+            <td>${m.family}</td>
+            <td>
+              <button onclick="approveMember('${doc.id}')" class='bg-green-600 px-2 py-1 rounded'>✅</button>
+              <button onclick="deletePending('${doc.id}')" class='bg-red-600 px-2 py-1 rounded'>❌</button>
+            </td>
+          </tr>`;
+      });
+      document.getElementById("pendingTable").classList.remove("hidden");
+    }
+
+    /* Delete / Approve Members */
+    async function deleteMember(id) {
+      if (!isOwner) return;
+      await db.collection("members").doc(id).delete();
+      showStatus("🗑️ Member deleted");
+      loadMembers();
+    }
+
+    async function deletePending(id) {
+      if (!isOwner) return;
+      await db.collection("pendingMembers").doc(id).delete();
+      showStatus("🗑️ Pending member deleted");
+      loadPendingMembers();
+    }
+
+    async function approveMember(id) {
+      const ref = db.collection("pendingMembers").doc(id);
+      const snap = await ref.get();
+      if (snap.exists) {
+        const data = snap.data();
+        const snapshot = await db.collection("members").get();
+        const newId = "M" + String(snapshot.size + 1).padStart(3, "0");
+        data.memberId = newId;
+        await db.collection("members").add(data);
+        await ref.delete();
+        showStatus(`✅ Member approved! ID: ${newId}`);
+        loadMembers();
+        loadPendingMembers();
+      }
+    }
+
+    /* Download Options */
+    async function downloadJSON() {
+      const snap = await db.collection("members").get();
+      const data = snap.docs.map(d => d.data());
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "members.json";
+      a.click();
+    }
+
+    async function downloadPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 20;
+      const snap = await db.collection("members").get();
+      snap.forEach(d => {
+        const m = d.data();
+        doc.text(`ID:${m.memberId} | ${m.name} | ${m.birthday} | ${m.sex} | ${m.family}`, 10, y);
+        y += 8;
+      });
+      doc.save("members.pdf");
+    }
+
+    /* Initial Load */
+    loadMembers();
+  </script>
+  <footer class="mt-10 text-gray-400 text-sm">
+    © 2025 Committee Management | All Rights Reserved
+  </footer>
+</body>
+</html>
