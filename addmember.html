@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Member | Member Management System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    body {
+      background-color: #111827;
+      color: white;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-center items-center text-center">
+
+  <!-- Header -->
+  <h1 class="text-3xl sm:text-4xl font-bold mb-6 text-purple-400" data-i18n="addMemberModal">
+    ➕ Add New Member
+  </h1>
+
+  <!-- Form -->
+  <form id="memberForm" class="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-sm space-y-3">
+    <input type="text" id="name" placeholder="Name" required 
+           class="w-full p-2 rounded bg-gray-700 text-white" data-i18n-placeholder="name">
+    
+    <input type="date" id="birthday" required 
+           class="w-full p-2 rounded bg-gray-700 text-white">
+
+    <select id="sex" required class="w-full p-2 rounded bg-gray-700 text-white">
+      <option value="" data-i18n="selectSex">Select Sex</option>
+      <option value="Male" data-i18n="male">Male</option>
+      <option value="Female" data-i18n="female">Female</option>
+    </select>
+
+    <textarea id="family" placeholder="Family Members" 
+              class="w-full p-2 rounded bg-gray-700 text-white" 
+              data-i18n-placeholder="family"></textarea>
+
+    <button type="submit" class="w-full py-2 bg-blue-600 rounded" data-i18n="save">Save</button>
+  </form>
+
+  <!-- Status -->
+  <p id="status" class="mt-4 text-lg"></p>
+
+  <!-- Back Button -->
+  <a href="index.html" class="mt-6 inline-block px-6 py-2 bg-red-600 rounded" data-i18n="close">
+    🔙 Back to Home
+  </a>
+
+  <script>
+    /* Translations */
+    const translations = {
+      en: {
+        addMemberModal:"Add Member", selectSex:"Select Sex", male:"Male", female:"Female",
+        save:"Save", close:"Close", submitted:"✅ Member submitted for approval!",
+        name:"Name", family:"Family Members"
+      },
+      si: {
+        addMemberModal:"සාමාජිකයෙක් එක් කරන්න", selectSex:"ලිංගය තෝරන්න", male:"පිරිමි", female:"ගැහැණු",
+        save:"සුරකින්න", close:"ආපසු යන්න", submitted:"✅ සාමාජිකයා අනුමත කිරීමට ඉදිරිපත් කරන ලදි!",
+        name:"නම", family:"පවුලේ සාමාජිකයින්"
+      },
+      ta: {
+        addMemberModal:"உறுப்பினர் சேர்க்கவும்", selectSex:"பாலினம் தேர்ந்தெடுக்கவும்", male:"ஆண்", female:"பெண்",
+        save:"சேமிக்கவும்", close:"மூடு", submitted:"✅ உறுப்பினர் ஒப்புதலுக்காக சமர்ப்பிக்கப்பட்டார்!",
+        name:"பெயர்", family:"குடும்ப உறுப்பினர்கள்"
+      }
+    };
+
+    function setLanguage(lang){
+      document.querySelectorAll("[data-i18n]").forEach(el=>{
+        if(translations[lang][el.getAttribute("data-i18n")])
+          el.textContent = translations[lang][el.getAttribute("data-i18n")];
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
+        if(translations[lang][el.getAttribute("data-i18n-placeholder")])
+          el.placeholder = translations[lang][el.getAttribute("data-i18n-placeholder")];
+      });
+    }
+
+    /* Firebase Setup */
+    const firebaseConfig = {
+      apiKey:"AIzaSyANUfgVwR0uWPOaFzf1GrehpfitR1sUGw0",
+      authDomain:"project01-d5df2.firebaseapp.com",
+      projectId:"project01-d5df2",
+      storageBucket:"project01-d5df2.firebasestorage.app",
+      messagingSenderId:"398259647179",
+      appId:"1:398259647179:web:54c78c2144a5d70e58614e",
+      measurementId:"G-Q1ZVC5C7LZ"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const showStatus=(msg,s=true)=>{
+      const el=document.getElementById("status");
+      el.textContent=msg;
+      el.className=s?"text-green-400 mt-4":"text-red-400 mt-4";
+    };
+
+    /* Submit Member Data */
+    document.getElementById("memberForm").addEventListener("submit", async e=>{
+      e.preventDefault();
+      const data={
+        name:document.getElementById("name").value,
+        birthday:document.getElementById("birthday").value,
+        sex:document.getElementById("sex").value,
+        family:document.getElementById("family").value,
+        submittedAt:new Date()
+      };
+      try{
+        await db.collection("pendingMembers").add(data);
+        showStatus(translations['en'].submitted);
+        document.getElementById("memberForm").reset();
+      }catch(err){ showStatus("❌ "+err.message,false); }
+    });
+  </script>
+</body>
+</html>

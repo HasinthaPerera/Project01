@@ -110,22 +110,18 @@
 
 <!-- Modals (Add/Edit/Owner) -->
 <!-- Add Member Modal -->
-<div id="formModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4">
-  <div class="bg-gray-800 p-6 rounded-lg w-full max-w-sm">
-    <h2 class="text-2xl mb-4 text-center" data-i18n="addMemberModal">Add Member</h2>
-    <form id="memberForm" class="space-y-3">
-      <input type="text" id="name" placeholder="Name" data-i18n-placeholder="name" required class="w-full p-2 rounded bg-gray-700">
-      <input type="date" id="birthday" required class="w-full p-2 rounded bg-gray-700">
-      <select id="sex" required class="w-full p-2 rounded bg-gray-700">
-        <option value="" data-i18n="selectSex">Select Sex</option>
-        <option value="Male" data-i18n="male">Male</option>
-        <option value="Female" data-i18n="female">Female</option>
-      </select>
-      <textarea id="family" placeholder="Family Members" data-i18n-placeholder="family" class="w-full p-2 rounded bg-gray-700"></textarea>
-      <button type="submit" class="w-full py-2 bg-blue-600 rounded" data-i18n="save">Save</button>
-    </form>
-    <button onclick="closeForm()" class="mt-4 w-full py-2 bg-red-600 rounded" data-i18n="close">Close</button>
-  </div>
+<!-- Buttons Section -->
+<div class="flex flex-col sm:flex-row gap-3">
+  <a href="addmember.html" target="_blank" 
+     class="px-6 py-3 bg-blue-600 rounded-lg text-lg inline-block" 
+     data-i18n="addMember">
+     ➕ Add New Member
+  </a>
+  <button onclick="loadMembers()" 
+          class="px-6 py-3 bg-green-600 rounded-lg text-lg" 
+          data-i18n="viewMembers">
+          📋 View All Members
+  </button>
 </div>
 
 <!-- Edit Member Modal -->
