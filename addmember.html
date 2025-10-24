@@ -1,136 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Add Member | Member Management System</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Member</title>
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <style>
     body {
-      background-color: #111827;
+      background: linear-gradient(to bottom right, #1e1e2f, #111);
       color: white;
+    }
+    .form-container {
+      background-color: #2d2d3a;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
   </style>
 </head>
+
 <body class="min-h-screen flex flex-col justify-center items-center text-center">
 
-  <!-- Language Switch -->
-  <div class="absolute top-4 right-4 space-x-2">
+  <!-- Navbar -->
+  <div class="absolute top-4 left-4 flex space-x-2">
     <button onclick="setLanguage('en')" class="px-3 py-1 bg-blue-600 rounded">EN</button>
     <button onclick="setLanguage('si')" class="px-3 py-1 bg-green-600 rounded">සිං</button>
     <button onclick="setLanguage('ta')" class="px-3 py-1 bg-pink-600 rounded">தமிழ்</button>
   </div>
 
-  <!-- Header -->
-  <h1 class="text-3xl sm:text-4xl font-bold mb-6 text-purple-400" data-i18n="addMemberModal">
-    ➕ Add New Member
-  </h1>
+  <!-- Logo -->
+  <div class="flex flex-col items-center mb-6">
+    <img src="logo-example.png" alt="Logo" class="w-40 h-40 mb-4 rounded-full shadow-lg border-4 border-purple-500" />
+    <h1 data-i18n="addMemberTitle" class="text-4xl font-bold text-purple-400">➕ Add New Member</h1>
+  </div>
 
   <!-- Form -->
-  <form id="memberForm" class="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-sm space-y-3">
-    <input type="text" id="name" placeholder="Name" required 
-           class="w-full p-2 rounded bg-gray-700 text-white" data-i18n-placeholder="name">
-    
-    <input type="date" id="birthday" required 
-           class="w-full p-2 rounded bg-gray-700 text-white">
+  <div class="form-container w-full max-w-md">
+    <form id="memberForm" class="space-y-4">
+      <div>
+        <input type="text" id="name" data-i18n-placeholder="name" placeholder="Name" required class="w-full p-3 rounded bg-gray-700 text-white">
+      </div>
+      <div>
+        <input type="date" id="birthday" required class="w-full p-3 rounded bg-gray-700 text-white">
+      </div>
+      <div>
+        <select id="sex" required class="w-full p-3 rounded bg-gray-700 text-white">
+          <option value="" data-i18n="selectSex">Select Sex</option>
+          <option value="Male" data-i18n="male">Male</option>
+          <option value="Female" data-i18n="female">Female</option>
+        </select>
+      </div>
+      <div>
+        <textarea id="family" data-i18n-placeholder="family" placeholder="Family Members" class="w-full p-3 rounded bg-gray-700 text-white"></textarea>
+      </div>
+      <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 rounded text-lg font-semibold" data-i18n="save">Save</button>
+    </form>
+    <a href="index.html" class="mt-4 inline-block w-full py-3 bg-red-600 hover:bg-red-700 rounded text-lg font-semibold" data-i18n="back">⬅️ Back to Home</a>
+  </div>
 
-    <select id="sex" required class="w-full p-2 rounded bg-gray-700 text-white">
-      <option value="" data-i18n="selectSex">Select Sex</option>
-      <option value="Male" data-i18n="male">Male</option>
-      <option value="Female" data-i18n="female">Female</option>
-    </select>
-
-    <textarea id="family" placeholder="Family Members" 
-              class="w-full p-2 rounded bg-gray-700 text-white" 
-              data-i18n-placeholder="family"></textarea>
-
-    <button type="submit" class="w-full py-2 bg-blue-600 rounded" data-i18n="save">Save</button>
-  </form>
-
-  <!-- Status -->
-  <p id="status" class="mt-4 text-lg"></p>
-
-  <!-- Back Button -->
-  <a href="index.html" class="mt-6 inline-block px-6 py-2 bg-red-600 rounded" data-i18n="close">
-    🔙 Back to Home
-  </a>
+  <!-- Status Message -->
+  <div id="status" class="text-center mt-6 text-lg"></div>
 
   <script>
-    /* 🔤 Translations */
+    /* Translations */
     const translations = {
       en: {
-        addMemberModal:"Add Member", selectSex:"Select Sex", male:"Male", female:"Female",
-        save:"Save", close:"Back to Home", submitted:"✅ Member submitted for approval!",
-        name:"Name", family:"Family Members"
+        addMemberTitle: "➕ Add New Member",
+        name: "Name",
+        selectSex: "Select Sex",
+        male: "Male",
+        female: "Female",
+        family: "Family Members",
+        save: "Save",
+        back: "⬅️ Back to Home",
+        submitted: "✅ Member submitted for approval!"
       },
       si: {
-        addMemberModal:"සාමාජිකයෙක් එක් කරන්න", selectSex:"ස්ත්‍රී/පුරුෂ භාවය", male:"පිරිමි", female:"ගැහැණු",
-        save:"සුරකින්න", close:"මුල් පිටුවට යන්න", submitted:"✅ සාමාජිකයා අනුමත කිරීමට ඉදිරිපත් කරන ලදි!",
-        name:"නම", family:"පවුලේ සාමාජිකයින්"
+        addMemberTitle: "➕ නව සාමාජිකයෙක් එක් කරන්න",
+        name: "නම",
+        selectSex: "ස්ත්‍රී/පුරුෂ භාවය තෝරන්න",
+        male: "පිරිමි",
+        female: "ගැහැණු",
+        family: "පවුලේ සාමාජිකයින්",
+        save: "සුරකින්න",
+        back: "⬅️ මුල් පිටුවට ආපසු යන්න",
+        submitted: "✅ සාමාජිකයා අනුමත කිරීමට ඉදිරිපත් කරන ලදි!"
       },
       ta: {
-        addMemberModal:"உறுப்பினர் சேர்க்கவும்", selectSex:"பாலினம் தேர்ந்தெடுக்கவும்", male:"ஆண்", female:"பெண்",
-        save:"சேமிக்கவும்", close:"முதன்மை பக்கத்திற்குத் திரும்பவும்", submitted:"✅ உறுப்பினர் ஒப்புதலுக்காக சமர்ப்பிக்கப்பட்டார்!",
-        name:"பெயர்", family:"குடும்ப உறுப்பினர்கள்"
+        addMemberTitle: "➕ புதிய உறுப்பினர் சேர்க்கவும்",
+        name: "பெயர்",
+        selectSex: "பாலினம் தேர்ந்தெடுக்கவும்",
+        male: "ஆண்",
+        female: "பெண்",
+        family: "குடும்ப உறுப்பினர்கள்",
+        save: "சேமிக்கவும்",
+        back: "⬅️ முகப்புக்கு திரும்ப",
+        submitted: "✅ உறுப்பினர் ஒப்புதலுக்காக சமர்ப்பிக்கப்பட்டார்!"
       }
     };
 
-    function setLanguage(lang){
-      document.querySelectorAll("[data-i18n]").forEach(el=>{
-        if(translations[lang][el.getAttribute("data-i18n")])
-          el.textContent = translations[lang][el.getAttribute("data-i18n")];
+    function setLanguage(lang) {
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (translations[lang][key]) el.textContent = translations[lang][key];
       });
-      document.querySelectorAll("[data-i18n-placeholder]").forEach(el=>{
-        if(translations[lang][el.getAttribute("data-i18n-placeholder")])
-          el.placeholder = translations[lang][el.getAttribute("data-i18n-placeholder")];
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        const key = el.getAttribute("data-i18n-placeholder");
+        if (translations[lang][key]) el.placeholder = translations[lang][key];
       });
     }
 
-    /* 🔥 Firebase Setup */
+    /* Firebase Setup */
     const firebaseConfig = {
-      apiKey:"AIzaSyANUfgVwR0uWPOaFzf1GrehpfitR1sUGw0",
-      authDomain:"project01-d5df2.firebaseapp.com",
-      projectId:"project01-d5df2",
-      storageBucket:"project01-d5df2.firebasestorage.app",
-      messagingSenderId:"398259647179",
-      appId:"1:398259647179:web:54c78c2144a5d70e58614e",
-      measurementId:"G-Q1ZVC5C7LZ"
+      apiKey: "AIzaSyANUfgVwR0uWPOaFzf1GrehpfitR1sUGw0",
+      authDomain: "project01-d5df2.firebaseapp.com",
+      projectId: "project01-d5df2",
+      storageBucket: "project01-d5df2.firebasestorage.app",
+      messagingSenderId: "398259647179",
+      appId: "1:398259647179:web:54c78c2144a5d70e58614e"
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const showStatus=(msg,s=true)=>{
-      const el=document.getElementById("status");
-      el.textContent=msg;
-      el.className=s?"text-green-400 mt-4":"text-red-400 mt-4";
-    };
-
-    /* 💾 Submit Member Data */
-    document.getElementById("memberForm").addEventListener("submit", async e=>{
+    /* Form submission */
+    document.getElementById("memberForm").addEventListener("submit", async e => {
       e.preventDefault();
-      const data={
-        name:document.getElementById("name").value,
-        birthday:document.getElementById("birthday").value,
-        sex:document.getElementById("sex").value,
-        family:document.getElementById("family").value,
-        submittedAt:new Date()
+      const data = {
+        name: document.getElementById("name").value,
+        birthday: document.getElementById("birthday").value,
+        sex: document.getElementById("sex").value,
+        family: document.getElementById("family").value,
+        submittedAt: new Date()
       };
-      try{
+      try {
         await db.collection("pendingMembers").add(data);
-        showStatus(translations['en'].submitted);
+        showStatus(translations["en"].submitted);
         document.getElementById("memberForm").reset();
-      }catch(err){ showStatus("❌ "+err.message,false); }
+      } catch (err) {
+        showStatus("❌ " + err.message, false);
+      }
     });
-  </script>
-  <!-- Footer -->
-  <footer class="mt-10 text-gray-400 text-sm">
-    © 2025 Committee Management | All Rights Reserved
-  </footer>
 
+    /* Show status */
+    function showStatus(msg, s = true) {
+      const el = document.getElementById("status");
+      el.textContent = msg;
+      el.className = s ? "text-green-400 mt-4" : "text-red-400 mt-4";
+    }
+  </script>
 </body>
 </html>
